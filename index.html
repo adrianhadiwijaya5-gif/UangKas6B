@@ -1,1 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Sistem Kas 5B - Dual Sektor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
+            --dark: #0f172a;
+            --slate: #64748b;
+            --white: #ffffff;
+            --scout-green: #14532d;
+            --scout-light: #16a34a;
+        }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #f1f5f9; color: var(--dark); padding-bottom: 40px; }
+        
+        header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: var(--white); padding: 25px 20px; text-align: center; transition: background 0.3s; }
+        header.scout-mode { background: linear-gradient(135deg, var(--scout-green) 0%, var(--scout-light) 100%); }
+        
+        .container { max-width: 1100px; margin: 25px auto; padding: 0 15px; }
+        
+        /* SECTOR NAVIGATION TABS AT TOP */
+        .sector-nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .sector-btn { flex: 1; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; background: #cbd5e1; color: var(--slate); transition: all 0.2s; }
+        .sector-btn.active.kelas { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2); }
+        .sector-btn.active.pramuka { background: #b45309; color: white; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.2); }
+
+        .role-selector { background: var(--white); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .role-badge { background: #e2e8f0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .btn-primary { background: var(--primary-light); color: var(--white); }
+        .btn-primary.scout { background: var(--scout-light); }
+        
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: var(--white); padding: 20px; border-radius: 12px; border-left: 5px solid var(--primary-light); }
+        .card.success { border-left-color: var(--success); }
+        .card.danger { border-left-color: var(--danger); }
+        .card.purple { border-left-color: var(--purple); }
+        .card h3 { font-size: 13px; color: var(--slate); text-transform: uppercase; margin-bottom: 5px; }
+        .card .amount { font-size: 20px; font-weight: 700; }
+        
+        .main-content { background: var(--white); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .section-title { font-size: 18px; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: var(--slate); }
+        .type-badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .type-in { background: #d1fae5; color: #065f46; }
+        .type-out { background: #fee2e2; color: #991b1b; }
+        .admin-panel { display: none; background: #fffcf5; border: 1px solid #fef3c7; }
+        
+        .chart-panel { display: none; background: var(--white); text-align: center; }
+        .chart-container { position: relative; margin: auto; height: 260px; width: 260px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; z-index: 999; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 340px; text-align: center; }
+        
+        .login-toggle { display: flex; margin-bottom: 15px; background: #f1f5f9; padding: 4px; border-radius: 8px; }
+        .toggle-tab { flex: 1; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; background: transparent; border: none; }
+        .toggle-tab.active { background: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--primary); }
+        .loading { text-align: center; padding: 20px; color: var(--slate); font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <h1 id="header-title">Portal Keuangan Kas Kelas 5B</h1>
+        <p id="header-desc">Transparansi Keuangan Real-time Digital</p>
+    </header>
+
+    <div class="container">
+        <div class="sector-nav">
+            <button id="btn-sec-kelas" class="sector-btn active kelas" onclick="switchSector('kelas')">🏫 Lihat Kas Kelas 5B</button>
+            <button id="btn-sec-pramuka" class="sector-btn pramuka" onclick="switchSector('pramuka')">⛺ Lihat Kas Pramuka (Regu)</button>
+        </div>
+
+        <div class="role-selector">
+            <div>
+                <span>Status Akses:</span>
+                <span id="current-role-text" class="role-badge">Siswa (View Only)</span>
+            </div>
+            <button id="auth-btn" class="btn btn-primary" onclick="handleAuthAction()">Login Pengurus</button>
+        </div>
+
+        <div class="summary-grid">
+            <div class="card" id="card-utama">
+                <h3>Sisa Saldo Utama</h3>
+                <div id="total-saldo" class="amount" style="color: var(--primary)">Rp 0</div>
+            </div>
+            <div class="card purple">
+                <h3>🛡️ Dana Darurat Sektor</h3>
+                <div id="total-darurat" class="amount" style="color: var(--purple)">Rp 0</div>
+                <span style="font-size: 11px; color: var(--slate)">Pencadangan otomatis 10% dari pemasukan</span>
+            </div>
+            <div class="card success">
+                <h3>Total Pemasukan</h3>
+                <div id="total-masuk" class="amount" style="color: var(--success)">Rp 0</div>
+            </div>
+            <div class="card danger">
+                <h3>Total Pengeluaran</h3>
+                <div id="total-keluar" class="amount" style="color: var(--danger)">Rp 0</div>
+            </div>
+        </div>
+
+        <div id="evaluation-chart-panel" class="main-content chart-panel">
+            <h2 class="section-title">📊 Rata-rata Persentase Pengeluaran Sektor</h2>
+            <p id="chart-trigger-reason" style="font-size: 12px; color: var(--slate); margin-bottom: 15px; font-style: italic;"></p>
+            <div class="chart-container">
+                <canvas id="kasPieChart"></canvas>
+            </div>
+        </div>
+
+        <div id="admin-input-panel" class="main-content admin-panel">
+            <h2 class="section-title" id="panel-input-title" style="color: #b45309;">Panel Input Laporan Keuangan</h2>
+            <form id="kas-form" onsubmit="saveData(event)">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>Identitas Pelapor</label>
+                        <input type="text" id="user-identity" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="tx-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Mutasi</label>
+                        <select id="tx-type" class="form-control" required>
+                            <option value="masuk">Pemasukan (Uang Masuk)</option>
+                            <option value="keluar">Pengeluaran (Belanja/Logistik)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Uang (Rp)</label>
+                        <input type="number" id="tx-amount" class="form-control" placeholder="5000" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan Keperluan</label>
+                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Mingguan" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-submit-form" style="background: var(--success); width: 100%; padding: 12px;">Simpan Transaksi Ke Cloud Server Google</button>
+            </form>
+        </div>
+
+        <div class="main-content">
+            <h2 class="section-title" id="table-title">Buku Mutasi Sektor</h2>
+            <div id="loading-status" class="loading">Memuat data cloud database...</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Jenis</th>
+                            <th>Jumlah</th>
+                            <th>Oleh (Pengurus)</th>
+                            <th id="th-aksi" style="display: none;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Akses Kontrol Pengurus</h3>
+            
+            <div class="login-toggle">
+                <button id="tab-owner" class="toggle-tab active" onclick="switchLoginMode('owner')">Login Owner (Ketua)</button>
+                <button id="tab-pin" class="toggle-tab" onclick="switchLoginMode('pin')">Login Admin (Pengurus)</button>
+            </div>
+
+            <div id="form-owner-wrapper">
+                <div class="form-group">
+                    <label style="font-size: 12px; color: var(--slate)">Email Akun Owner:</label>
+                    <input type="email" id="owner-email" class="form-control" placeholder="adrianhadiwijaya5@gmail.com">
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label style="font-size: 12px; color: var(--slate)">Password Owner:</label>
+                    <input type="password" id="owner-password" class="form-control" placeholder="PASSWORD OWNER">
+                </div>
+            </div>
+
+            <div id="form-pin-wrapper" style="display: none;">
+                <div class="form-group">
+                    <label style="font-size: 12px; color: var(--slate)">Masukkan PIN Otoritas Admin:</label>
+                    <input type="password" id="admin-pin" class="form-control" style="text-align: center;" placeholder="KODE PIN">
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn" style="background: #e2e8f0; margin-right: 5px;" onclick="closeLoginModal()">Batal</button>
+                <button class="btn btn-primary" id="btn-login-exec" onclick="verifyLogin()">Verifikasi & Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ TEMPELKAN TAUTAN URL WEB APP /EXEC GOOGLE APPS SCRIPT KAMU DI SINI
+        const CLOUD_API_URL = "MASUKKAN_URL_WEB_APP_KAMU_DISINI";
+        
+        // KONFIGURASI KREDENSIAL LOGIN MUTLAK
+        const OWNER_CONFIG = {
+            email: "adrianhadiwijaya5@gmail.com",
+            password: "RIOGRANDE55",
+            roleName: "Owner / Ketua"
+        };
+
+        const PIN_CONFIG = {
+            "RIOBRAVO77": "Wakil Ketua",
+            "INDIA66": "Sekretaris",
+            "ALHARAM1": "Bendahara"
+        };
+
+        let currentSector = "kelas"; 
+        let currentActiveRole = null; 
+        let isAuthorized = false; // Status otoritas akses tulis/hapus data
+        let loginMode = "owner"; // Default tab terbuka awal: owner
+        let myChartInstance = null;
+        let allCloudData = [];
+
+        function formatRupiah(angka) { return "Rp " + parseInt(angka).toLocaleString("id-ID"); }
+
+        function loadCloudData() {
+            document.getElementById("loading-status").style.display = "block";
+            fetch(CLOUD_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    allCloudData = data;
+                    document.getElementById("loading-status").style.display = "none";
+                    renderApplication();
+                })
+                .catch(err => {
+                    document.getElementById("loading-status").innerText = "Gagal memuat data cloud. Periksa setelan URL API.";
+                    console.error(err);
+                });
+        }
+
+        function switchSector(sector) {
+            currentSector = sector;
+            
+            const header = document.getElementById("main-header");
+            const btnKelas = document.getElementById("btn-sec-kelas");
+            const btnPramuka = document.getElementById("btn-sec-pramuka");
+            const authBtn = document.getElementById("auth-btn");
+            
+            if(sector === "kelas") {
+                header.classList.remove("scout-mode");
+                document.getElementById("header-title").innerText = "Portal Keuangan Kas Kelas 5B";
+                document.getElementById("header-desc").innerText = "Transparansi Keuangan Real-time Digital";
+                btnKelas.classList.add("active");
+                btnPramuka.classList.remove("active");
+                authBtn.className = "btn btn-primary";
+            } else {
+                header.classList.add("scout-mode");
+                document.getElementById("header-title").innerText = "Portal Keuangan Kas Pramuka (Regu)";
+                document.getElementById("header-desc").innerText = "Sistem Monitoring Kas Regu Pramuka Kreatif";
+                btnKelas.classList.remove("active");
+                btnPramuka.classList.add("active");
+                authBtn.className = "btn btn-primary scout";
+            }
+            
+            renderApplication();
+        }
+
+        function updatePieChart(totalMasuk, totalKeluar) {
+            if ((totalMasuk + totalKeluar) === 0) {
+                document.getElementById("evaluation-chart-panel").style.display = "none";
+                return;
+            }
+
+            document.getElementById("evaluation-chart-panel").style.display = "block";
+            const gabungan = totalMasuk + totalKeluar;
+            const persenMasuk = ((totalMasuk / gabungan) * 100).toFixed(1);
+            const persenKeluar = ((totalKeluar / gabungan) * 100).toFixed(1);
+
+            const ctx = document.getElementById('kasPieChart').getContext('2d');
+            if (myChartInstance !== null) { myChartInstance.destroy(); }
+
+            myChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [`Masuk (${persenMasuk}%)`, `Keluar (${persenKeluar}%)`],
+                    datasets: [{
+                        data: [totalMasuk, totalKeluar],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function renderApplication() {
+            const tbody = document.getElementById("data-table-body");
+            tbody.innerHTML = "";
+            
+            const filteredData = allCloudData.filter(item => {
+                const itemSector = item.sector ? item.sector : "kelas";
+                return itemSector === currentSector;
+            });
+
+            document.getElementById("table-title").innerText = currentSector === "kelas" ? 
+                "Buku Mutasi Transaksi Kas Kelas (Real-time Cloud)" : "Buku Mutasi Transaksi Kas Pramuka (Real-time Cloud)";
+
+            let brutoMasuk = 0;
+            let totalKeluar = 0;
+
+            if(filteredData.length > 0) {
+                filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                filteredData.forEach(item => {
+                    if(item.type === "masuk") brutoMasuk += parseInt(item.amount);
+                    else totalKeluar += parseInt(item.amount);
+
+                    const operatorName = item.operator ? item.operator : "Bendahara";
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.desc}</td>
+                        <td><span class="type-badge ${item.type === 'masuk' ? 'type-in' : 'type-out'}">${item.type.toUpperCase()}</span></td>
+                        <td>${formatRupiah(item.amount)}</td>
+                        <td><strong>${operatorName}</strong></td>
+                        ${isAuthorized ? `<td><button class="btn" style="background:var(--danger);color:white;padding:4px 8px;" onclick="deleteData('${item.id}')">Hapus</button></td>` : '<td></td>'}
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--slate);">Belum ada data keuangan di sektor ini.</td></tr>`;
+            }
+
+            let alokasiDarurat = Math.round(brutoMasuk * 0.10);
+            let sisaMasukUtama = brutoMasuk - alokasiDarurat;
+            let sisaSaldoUtama = sisaMasukUtama - totalKeluar;
+            let finalDanaDarurat = alokasiDarurat;
+
+            if (sisaSaldoUtama < 0) {
+                finalDanaDarurat = alokasiDarurat + sisaSaldoUtama; 
+                sisaSaldoUtama = 0; 
+                if (finalDanaDarurat < 0) finalDanaDarurat = 0;
+            }
+
+            document.getElementById("total-masuk").innerText = formatRupiah(brutoMasuk);
+            document.getElementById("total-keluar").innerText = formatRupiah(totalKeluar);
+            document.getElementById("total-saldo").innerText = formatRupiah(sisaSaldoUtama);
+            document.getElementById("total-darurat").innerText = formatRupiah(finalDanaDarurat);
+
+            if(filteredData.length > 0) {
+                document.getElementById("chart-trigger-reason").innerText = `Grafik visual keuangan sektor ${currentSector}.`;
+                updatePieChart(brutoMasuk, totalKeluar);
+            } else {
+                document.getElementById("evaluation-chart-panel").style.display = "none";
+            }
+
+            // TAMPILKAN PANEL INPUT KALAU SUDAH LOGIN (BISA OWNER & ADMIN)
+            if (isAuthorized) {
+                document.getElementById("current-role-text").innerText = `${currentActiveRole} (Akses Penuh)`;
+                document.getElementById("auth-btn").innerText = "Logout Akses";
+                document.getElementById("admin-input-panel").style.display = "block";
+                document.getElementById("th-aksi").style.display = "table-cell";
+                document.getElementById("panel-input-title").innerText = `Panel Input (${currentSector.toUpperCase()})`;
+                document.getElementById("user-identity").value = currentActiveRole;
+            } else {
+                document.getElementById("current-role-text").innerText = "Siswa (View Only)";
+                document.getElementById("admin-input-panel").style.display = "none";
+                document.getElementById("th-aksi").style.display = "none";
+                document.getElementById("auth-btn").innerText = "Login Pengurus";
+            }
+        }
+
+        function handleAuthAction() {
+            if(isAuthorized) { 
+                currentActiveRole = null; 
+                isAuthorized = false;
+                renderApplication(); 
+            } else { 
+                document.getElementById("login-modal").style.display = "flex"; 
+                switchLoginMode('owner'); 
+            }
+        }
+        
+        function closeLoginModal() { document.getElementById("login-modal").style.display = "none"; }
+        
+        function switchLoginMode(mode) {
+            loginMode = mode;
+            if(mode === 'owner') {
+                document.getElementById("tab-owner").classList.add("active");
+                document.getElementById("tab-pin").classList.remove("active");
+                document.getElementById("form-owner-wrapper").style.display = "block";
+                document.getElementById("form-pin-wrapper").style.display = "none";
+            } else {
+                document.getElementById("tab-owner").classList.remove("active");
+                document.getElementById("tab-pin").classList.add("active");
+                document.getElementById("form-owner-wrapper").style.display = "none";
+                document.getElementById("form-pin-wrapper").style.display = "block";
+            }
+        }
+
+        function verifyLogin() {
+            if (loginMode === "owner") {
+                const inputEmail = document.getElementById("owner-email").value.toLowerCase().trim();
+                const inputPassword = document.getElementById("owner-password").value.trim();
+                
+                if (inputEmail === OWNER_CONFIG.email && inputPassword === OWNER_CONFIG.password) {
+                    currentActiveRole = OWNER_CONFIG.roleName;
+                    isAuthorized = true; // Owner bisa eksekusi input & hapus data
+                    closeLoginModal();
+                    renderApplication();
+                } else {
+                    alert("Email atau Password Akun Owner Salah!");
+                }
+                document.getElementById("owner-email").value = "";
+                document.getElementById("owner-password").value = "";
+            } else {
+                const inputPin = document.getElementById("admin-pin").value.trim();
+                if(PIN_CONFIG[inputPin]) { 
+                    currentActiveRole = PIN_CONFIG[inputPin]; 
+                    isAuthorized = true; // Admin bisa eksekusi input & hapus data
+                    closeLoginModal(); 
+                    renderApplication(); 
+                } else { 
+                    alert("PIN Otologin Admin Salah!"); 
+                }
+                document.getElementById("admin-pin").value = "";
+            }
+        }
+
+        function saveData(e) {
+            e.preventDefault();
+            if (!isAuthorized) return;
+
+            const payload = {
+                action: "add",
+                sector: currentSector, 
+                date: document.getElementById("tx-date").value,
+                type: document.getElementById("tx-type").value,
+                amount: document.getElementById("tx-amount").value,
+                desc: document.getElementById("tx-desc").value,
+                operator: currentActiveRole 
+            };
+
+            document.getElementById("loading-status").innerText = "Menyimpan ke Cloud Server...";
+            document.getElementById("loading-status").style.display = "block";
+
+            fetch(CLOUD_API_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(() => { document.getElementById("kas-form").reset(); loadCloudData(); })
+                .catch(() => alert("Gagal menyimpan data ke cloud."));
+        }
+
+        function deleteData(id) {
+            if(!isAuthorized) return;
+            if(confirm("Hapus data mutasi ini secara permanen dari server cloud?")) {
+                fetch(CLOUD_API_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: id }) })
+                    .then(() => loadCloudData());
+            }
+        }
+
+        window.onload = loadCloudData;
+    </script>
+</body>
+</html>
