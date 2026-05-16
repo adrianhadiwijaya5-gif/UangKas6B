@@ -15,6 +15,7 @@
             --slate: #64748b;
             --light: #f8fafc;
             --white: #ffffff;
+            --purple: #8b5cf6;
         }
 
         * {
@@ -81,6 +82,7 @@
         .btn-primary:hover { background: var(--primary); }
         .btn-danger { background: var(--danger); color: var(--white); }
         .btn-warning { background: var(--warning); color: var(--white); }
+        .btn-purple { background: var(--purple); color: var(--white); }
 
         .summary-grid {
             display: grid;
@@ -138,6 +140,7 @@
         .type-out { background: #fee2e2; color: #991b1b; }
 
         .admin-panel { display: none; background: #fffcf5; border: 1px solid #fef3c7; }
+        .owner-panel { display: none; background: #faf5ff; border: 1px solid #e9d5ff; }
         
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
@@ -152,13 +155,18 @@
         .modal-content { background: white; padding: 25px; border-radius: 12px; width: 320px; text-align: center; }
         
         .btn-group-action { display: flex; gap: 5px; }
+        
+        .log-text { font-family: monospace; font-size: 12px; }
+        .log-add { color: #059669; }
+        .log-edit { color: #d97706; }
+        .log-delete { color: #dc2626; }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Portal Keuangan Kas Kelas 6B</h1>
-        <p>Transparansi Kas Mingguan dan Bulanan Siswa</p>
+        <p>Transparansi Kas Mingguan dan Bulanan Siswa (Sistem Audit Anti-Penilepan)</p>
     </header>
 
     <div class="container">
@@ -167,7 +175,10 @@
                 <span style="font-size: 14px;">Status Akses:</span>
                 <span id="current-role-text" class="role-badge">Siswa (View Only)</span>
             </div>
-            <button id="auth-btn" class="btn btn-primary" onclick="openLoginModal()">Login Admin</button>
+            <div style="display: flex; gap: 8px;">
+                <button id="auth-btn" class="btn btn-primary" onclick="openLoginModal('admin')">Login Pengurus</button>
+                <button id="owner-btn" class="btn btn-purple" onclick="openLoginModal('owner')">Login Owner</button>
+            </div>
         </div>
 
         <div class="summary-grid">
@@ -190,32 +201,62 @@
             <form id="kas-form" onsubmit="saveData(event)">
                 <input type="hidden" id="edit-id" value="">
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div class="form-group">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Nama Anda (Pelaku Input)</label>
+                        <select id="user-identity" class="form-control" required>
+                            <option value="">-- Pilih Jabatan --</option>
+                            <option value="Bendahara 1">Bendahara 1</option>
+                            <option value="Bendahara 2">Bendahara 2</option>
+                            <option value="Sekretaris">Sekretaris</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
                         <label>Tanggal Transaksi</label>
                         <input type="date" id="tx-date" class="form-control" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom:0;">
                         <label>Jenis Transaksi</label>
                         <select id="tx-type" class="form-control" required>
                             <option value="masuk">Pemasukan (Uang Kas Masuk)</option>
                             <option value="keluar">Pengeluaran (Belanja Kelas)</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom:0;">
                         <label>Jumlah Uang (Rupiah)</label>
                         <input type="number" id="tx-amount" class="form-control" placeholder="Contoh: 50000" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Keterangan Keperluan</label>
-                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Kas Minggu Ke-1" required>
+                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Kas Minggu Ke-1 / Beli Sapu Baru" required>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" id="btn-submit-form" class="btn btn-primary" style="background: var(--success);">Simpan Transaksi</button>
                     <button type="button" id="btn-cancel-edit" class="btn" style="background: #cbd5e1; display: none;" onclick="cancelEditMode()">Batal Edit</button>
                 </div>
             </form>
+        </div>
+
+        <div id="owner-log-panel" class="main-content owner-panel">
+            <h2 class="section-title" style="color: var(--purple);">Owner Blackbox: Log Audit Aktivitas Pengurus</h2>
+            <div style="margin-bottom: 10px; text-align: right;">
+                <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="clearLogs()">Hapus Semua Log</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Waktu Sistem</th>
+                            <th>Petugas</th>
+                            <th>Tindakan</th>
+                            <th>Detail Riwayat Kejadian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="main-content">
@@ -240,37 +281,61 @@
 
     <div id="login-modal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-bottom: 15px;">Verifikasi Akses Admin</h3>
-            <p style="font-size: 13px; color: var(--slate); margin-bottom: 15px;">Khusus Pengurus Kelas 6B</p>
+            <h3 id="modal-title" style="margin-bottom: 15px;">Verifikasi Akses</h3>
+            <p id="modal-desc" style="font-size: 13px; color: var(--slate); margin-bottom: 15px;"></p>
+            <input type="hidden" id="login-target" value="">
             <div class="form-group">
-                <input type="password" id="admin-pin" class="form-control" style="text-align: center; letter-spacing: 5px;" placeholder="PIN KAS">
+                <input type="text" id="admin-pin" class="form-control" style="text-align: center; letter-spacing: 2px; font-weight: bold;" placeholder="MASUKKAN PIN">
             </div>
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button class="btn" style="background: #e2e8f0;" onclick="closeLoginModal()">Batal</button>
-                <button class="btn btn-primary" onclick="verifyAdmin()">Masuk</button>
+                <button class="btn btn-primary" id="btn-login-exec" onclick="verifyLogin()">Masuk</button>
             </div>
         </div>
     </div>
 
     <script>
-        const ADMIN_PIN = "123456"; 
+        // ===================================================
+        // KUNCI CODES AUTENTIKASI UTAMA (NATO PHONETIC ALPHABET)
+        // ===================================================
+        const ADMIN_PIN = "GOLFINDIAMIKE"; 
+        const OWNER_PIN = "PAPAKILOINDIALIMAXRAY"; 
+
         let isAdmin = false;
+        let isOwner = false;
+
         let kasData = JSON.parse(localStorage.getItem("kasData_kelas6b")) || [];
+        let auditLogs = JSON.parse(localStorage.getItem("auditLogs_kelas6b")) || [];
 
         function formatRupiah(angka) {
             return "Rp " + parseInt(angka).toLocaleString("id-ID");
         }
 
+        function getTimestamp() {
+            const now = new Date();
+            return now.toLocaleString("id-ID");
+        }
+
+        function addLog(user, action, detail, type) {
+            const newLog = {
+                timestamp: getTimestamp(),
+                user: user || "Sistem Tanpa Nama",
+                action: action,
+                detail: detail,
+                type: type 
+            };
+            auditLogs.push(newLog);
+            localStorage.setItem("auditLogs_kelas6b", JSON.stringify(auditLogs));
+        }
+
         function renderApplication() {
             const tbody = document.getElementById("data-table-body");
             tbody.innerHTML = "";
-            
             let totalMasuk = 0;
             let totalKeluar = 0;
 
             if(kasData.length > 0) {
                 kasData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
                 kasData.forEach(item => {
                     if(item.type === "masuk") totalMasuk += parseInt(item.amount);
                     else totalKeluar += parseInt(item.amount);
@@ -293,51 +358,106 @@
                     tbody.appendChild(row);
                 });
             } else {
-                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="text-align:center; color:var(--slate); padding:20px;">Belum ada data laporan keuangan minggu ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="text-align:center; color:var(--slate); padding:20px;">Belum ada data laporan keuangan.</td></tr>`;
             }
 
             document.getElementById("total-masuk").innerText = formatRupiah(totalMasuk);
             document.getElementById("total-keluar").innerText = formatRupiah(totalKeluar);
             document.getElementById("total-saldo").innerText = formatRupiah(totalMasuk - totalKeluar);
 
+            const logTbody = document.getElementById("log-table-body");
+            logTbody.innerHTML = "";
+            if (auditLogs.length > 0) {
+                [...auditLogs].reverse().forEach(log => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td style="font-size:12px; color:var(--slate);">${log.timestamp}</td>
+                        <td><strong>${log.user}</strong></td>
+                        <td><span class="log-text log-${log.type}">${log.action.toUpperCase()}</span></td>
+                        <td style="font-size:12px; font-family:monospace;">${log.detail}</td>
+                    `;
+                    logTbody.appendChild(row);
+                });
+            } else {
+                logTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--slate); padding:10px;">Belum ada riwayat aktivitas log.</td></tr>`;
+            }
+
+            if (isOwner) {
+                document.getElementById("current-role-text").innerText = "Owner Utama (Auditor)";
+                document.getElementById("current-role-text").style.background = "#faf5ff";
+                document.getElementById("current-role-text").style.color = "var(--purple)";
+                document.getElementById("owner-log-panel").style.display = "block";
+                document.getElementById("owner-btn").innerText = "Logout Owner";
+                document.getElementById("owner-btn").style.background = "var(--danger)";
+            } else {
+                document.getElementById("owner-log-panel").style.display = "none";
+                document.getElementById("owner-btn").innerText = "Login Owner";
+                document.getElementById("owner-btn").style.background = "var(--purple)";
+            }
+
             if (isAdmin) {
-                document.getElementById("current-role-text").innerText = "Pengurus Kelas (Admin)";
-                document.getElementById("current-role-text").style.background = "#fee2e2";
-                document.getElementById("current-role-text").style.color = "#991b1b";
+                document.getElementById("current-role-text").innerText = isOwner ? "Owner Utama (Auditor)" : "Pengurus Kelas (Admin)";
+                if(!isOwner) {
+                    document.getElementById("current-role-text").style.background = "#fee2e2";
+                    document.getElementById("current-role-text").style.color = "#991b1b";
+                }
                 document.getElementById("admin-input-panel").style.display = "block";
                 document.getElementById("th-aksi").style.display = "table-cell";
-                document.getElementById("auth-btn").innerText = "Logout Admin";
+                document.getElementById("auth-btn").innerText = "Logout Pengurus";
                 document.getElementById("auth-btn").style.background = "var(--danger)";
             } else {
-                document.getElementById("current-role-text").innerText = "Siswa (View Only)";
-                document.getElementById("current-role-text").style.background = "#e2e8f0";
-                document.getElementById("current-role-text").style.color = "var(--slate)";
+                if(!isOwner) {
+                    document.getElementById("current-role-text").innerText = "Siswa (View Only)";
+                    document.getElementById("current-role-text").style.background = "#e2e8f0";
+                    document.getElementById("current-role-text").style.color = "var(--slate)";
+                }
                 document.getElementById("admin-input-panel").style.display = "none";
                 document.getElementById("th-aksi").style.display = "none";
-                document.getElementById("auth-btn").innerText = "Login Admin";
+                document.getElementById("auth-btn").innerText = "Login Pengurus";
                 document.getElementById("auth-btn").style.background = "var(--primary-light)";
                 cancelEditMode();
             }
         }
 
-        function openLoginModal() {
-            if(isAdmin) {
-                isAdmin = false;
-                renderApplication();
-            } else {
-                document.getElementById("login-modal").style.display = "flex";
-                document.getElementById("admin-pin").focus();
+        function openLoginModal(target) {
+            document.getElementById("login-target").value = target;
+            if (target === 'admin') {
+                if(isAdmin) { isAdmin = false; renderApplication(); } 
+                else {
+                    document.getElementById("modal-title").innerText = "Verifikasi Akses Pengurus";
+                    document.getElementById("modal-desc").innerText = "Khusus Bendahara & Sekretaris";
+                    document.getElementById("login-modal").style.display = "flex";
+                    document.getElementById("admin-pin").focus();
+                }
+            } else if (target === 'owner') {
+                if(isOwner) { isOwner = false; isAdmin = false; renderApplication(); } 
+                else {
+                    document.getElementById("modal-title").innerText = "Verifikasi Akses Owner";
+                    document.getElementById("modal-desc").innerText = "Khusus Ketua Kelas Utama / Auditor Sistem";
+                    document.getElementById("login-modal").style.display = "flex";
+                    document.getElementById("admin-pin").focus();
+                }
             }
         }
 
-        function verifyAdmin() {
-            const pinInput = document.getElementById("admin-pin").value;
-            if(pinInput === ADMIN_PIN) {
-                isAdmin = true;
-                closeLoginModal();
-                renderApplication();
-            } else {
-                alert("PIN Salah! Akses khusus Pengurus Kelas 6B.");
+        function verifyLogin() {
+            // Mengubah input ke huruf besar otomatis agar tidak sensitif huruf kecil
+            const pinInput = document.getElementById("admin-pin").value.trim().toUpperCase();
+            const target = document.getElementById("login-target").value;
+
+            if (target === 'admin') {
+                if(pinInput === ADMIN_PIN) {
+                    isAdmin = true;
+                    closeLoginModal();
+                    renderApplication();
+                } else { alert("PIN Pengurus Salah!"); }
+            } else if (target === 'owner') {
+                if(pinInput === OWNER_PIN) {
+                    isOwner = true;
+                    isAdmin = true; 
+                    closeLoginModal();
+                    renderApplication();
+                } else { alert("PIN Owner Salah! Akses ditolak."); }
             }
         }
 
@@ -351,19 +471,30 @@
             if(!isAdmin) return;
 
             const editId = document.getElementById("edit-id").value;
+            const identity = document.getElementById("user-identity").value;
             const date = document.getElementById("tx-date").value;
             const type = document.getElementById("tx-type").value;
             const amount = document.getElementById("tx-amount").value;
             const desc = document.getElementById("tx-desc").value;
 
+            if (!identity) {
+                alert("Harap pilih identitas nama jabatan Anda sebelum menyimpan!");
+                return;
+            }
+
             if (editId) {
+                const original = kasData.find(item => item.id == editId);
+                const logDetail = `MENGUBAH transaksi ID ${editId}. SEBELUMNYA: [${original.date} | ${original.desc} | ${original.type} | Rp ${parseInt(original.amount).toLocaleString()}] -> MENJADI: [${date} | ${desc} | ${type} | Rp ${parseInt(amount).toLocaleString()}]`;
+                
                 kasData = kasData.map(item => {
                     if (item.id == editId) {
                         return { ...item, date, type, amount: parseInt(amount), desc };
                     }
                     return item;
                 });
-                alert("Data transaksi berhasil diperbarui!");
+                
+                addLog(identity, "Ubah Data", logDetail, "edit");
+                alert("Data transaksi berhasil diperbarui dan dicatat ke log owner!");
             } else {
                 const newData = {
                     id: Date.now(),
@@ -373,6 +504,9 @@
                     amount: parseInt(amount)
                 };
                 kasData.push(newData);
+                
+                const logDetail = `MENAMBAH transaksi baru: [${date} | ${desc} | ${type} | Rp ${parseInt(amount).toLocaleString()}]`;
+                addLog(identity, "Tambah Data", logDetail, "add");
             }
 
             localStorage.setItem("kasData_kelas6b", JSON.stringify(kasData));
@@ -409,9 +543,30 @@
 
         function deleteData(id) {
             if(!isAdmin) return;
-            if(confirm("Apakah pengurus yakin ingin menghapus kesalahan transaksi ini secara permanen?")) {
+            const targetData = kasData.find(item => item.id === id);
+            if (!targetData) return;
+
+            const identity = document.getElementById("user-identity").value || (isOwner ? "Owner Utama" : "");
+            if (!identity && !isOwner) {
+                alert("Untuk menghapus, mohon pilih 'Nama Anda (Pelaku Input)' terlebih dahulu di form bagian atas agar tercatat siapa yang menghapusnya.");
+                return;
+            }
+
+            if(confirm(`Apakah Anda yakin ingin menghapus data transaksi ini?\n[${targetData.desc} - Rp ${parseInt(targetData.amount).toLocaleString()}]`)) {
+                const logDetail = `MENGHAPUS PERMANEN transaksi: [${targetData.date} | ${targetData.desc} | ${targetData.type} | Rp ${parseInt(targetData.amount).toLocaleString()}]`;
+                
                 kasData = kasData.filter(item => item.id !== id);
                 localStorage.setItem("kasData_kelas6b", JSON.stringify(kasData));
+                
+                addLog(identity || "Owner Utama", "Hapus Data", logDetail, "delete");
+                renderApplication();
+            }
+        }
+
+        function clearLogs() {
+            if(confirm("Apakah Anda sebagai Owner yakin ingin mengosongkan seluruh riwayat log audit ini? Tindakan ini tidak bisa dibatalkan.")) {
+                auditLogs = [];
+                localStorage.removeItem("auditLogs_kelas6b");
                 renderApplication();
             }
         }
