@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Kas Kelas 5B</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --slate: #64748b;
+            --light: #f8fafc;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        header h1 { font-size: 24px; margin-bottom: 5px; }
+        header p { font-size: 14px; opacity: 0.9; }
+
+        .container {
+            max-width: 1000px;
+            margin: 25px auto;
+            padding: 0 15px;
+        }
+
+        .role-selector {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .role-badge {
+            background: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--slate);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-primary { background: var(--primary-light); color: var(--white); }
+        .btn-primary:hover { background: var(--primary); }
+        .btn-danger { background: var(--danger); color: var(--white); }
+        .btn-warning { background: var(--warning); color: var(--white); }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border-left: 5px solid var(--primary-light);
+        }
+        .card.success { border-left-color: var(--success); }
+        .card.danger { border-left-color: var(--danger); }
+
+        .card h3 { font-size: 14px; color: var(--slate); text-transform: uppercase; margin-bottom: 5px; }
+        .card .amount { font-size: 22px; font-weight: 700; }
+
+        .main-content {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .table-responsive { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; font-weight: 600; color: var(--slate); }
+        
+        .type-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .type-in { background: #d1fae5; color: #065f46; }
+        .type-out { background: #fee2e2; color: #991b1b; }
+
+        .admin-panel { display: none; background: #fffcf5; border: 1px solid #fef3c7; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .form-control {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 320px; text-align: center; }
+        
+        .btn-group-action { display: flex; gap: 5px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Portal Keuangan Kas Kelas 5B</h1>
+        <p>Transparansi Kas Mingguan dan Bulanan Siswa</p>
+    </header>
+
+    <div class="container">
+        <div class="role-selector">
+            <div>
+                <span style="font-size: 14px;">Status Akses:</span>
+                <span id="current-role-text" class="role-badge">Siswa (View Only)</span>
+            </div>
+            <button id="auth-btn" class="btn btn-primary" onclick="openLoginModal()">Login Admin</button>
+        </div>
+
+        <div class="summary-grid">
+            <div class="card">
+                <h3>Sisa Saldo Kas</h3>
+                <div id="total-saldo" class="amount" style="color: var(--primary)">Rp 0</div>
+            </div>
+            <div class="card success">
+                <h3>Total Pemasukan</h3>
+                <div id="total-masuk" class="amount" style="color: var(--success)">Rp 0</div>
+            </div>
+            <div class="card danger">
+                <h3>Total Pengeluaran</h3>
+                <div id="total-keluar" class="amount" style="color: var(--danger)">Rp 0</div>
+            </div>
+        </div>
+
+        <div id="admin-input-panel" class="main-content admin-panel">
+            <h2 id="panel-title" class="section-title" style="color: #b45309;">Panel Pengurus: Input Laporan Mingguan</h2>
+            <form id="kas-form" onsubmit="saveData(event)">
+                <input type="hidden" id="edit-id" value="">
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="form-group">
+                        <label>Tanggal Transaksi</label>
+                        <input type="date" id="tx-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Transaksi</label>
+                        <select id="tx-type" class="form-control" required>
+                            <option value="masuk">Pemasukan (Uang Kas Masuk)</option>
+                            <option value="keluar">Pengeluaran (Belanja Kelas)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Uang (Rupiah)</label>
+                        <input type="number" id="tx-amount" class="form-control" placeholder="Contoh: 50000" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan Keperluan</label>
+                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Kas Minggu Ke-1 / Beli Sapu Baru" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" id="btn-submit-form" class="btn btn-primary" style="background: var(--success);">Simpan Transaksi</button>
+                    <button type="button" id="btn-cancel-edit" class="btn" style="background: #cbd5e1; display: none;" onclick="cancelEditMode()">Batal Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="main-content">
+            <h2 class="section-title">Buku Mutasi Transaksi Kas</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Jenis</th>
+                            <th>Jumlah</th>
+                            <th id="th-aksi" style="display: none;">Kelola Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Verifikasi Akses Admin</h3>
+            <p style="font-size: 13px; color: var(--slate); margin-bottom: 15px;">Khusus Ketua, Wakil, Bendahara, & Sekretaris</p>
+            <div class="form-group">
+                <input type="password" id="admin-pin" class="form-control" style="text-align: center; letter-spacing: 5px;" placeholder="PIN KAS">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn" style="background: #e2e8f0;" onclick="closeLoginModal()">Batal</button>
+                <button class="btn btn-primary" onclick="verifyAdmin()">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PIN = "113333555555"; // PIN admin Anda
+        let isAdmin = false;
+
+        let kasData = JSON.parse(localStorage.getItem("kasData_kelas5b")) || [];
+
+        function formatRupiah(angka) {
+            return "Rp " + parseInt(angka).toLocaleString("id-ID");
+        }
+
+        function renderApplication() {
+            const tbody = document.getElementById("data-table-body");
+            tbody.innerHTML = "";
+            
+            let totalMasuk = 0;
+            let totalKeluar = 0;
+
+            if(kasData.length > 0) {
+                kasData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                kasData.forEach(item => {
+                    if(item.type === "masuk") totalMasuk += parseInt(item.amount);
+                    else totalKeluar += parseInt(item.amount);
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.desc}</td>
+                        <td><span class="type-badge ${item.type === 'masuk' ? 'type-in' : 'type-out'}">${item.type.toUpperCase()}</span></td>
+                        <td>${formatRupiah(item.amount)}</td>
+                        ${isAdmin ? `
+                        <td>
+                            <div class="btn-group-action">
+                                <button class="btn btn-warning" style="padding:4px 8px; font-size:11px;" onclick="startEditMode(${item.id})">Edit</button>
+                                <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteData(${item.id})">Hapus</button>
+                            </div>
+                        </td>
+                        ` : ''}
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="text-align:center; color:var(--slate); padding:20px;">Belum ada data laporan keuangan minggu ini.</td></tr>`;
+            }
+
+            document.getElementById("total-masuk").innerText = formatRupiah(totalMasuk);
+            document.getElementById("total-keluar").innerText = formatRupiah(totalKeluar);
+            document.getElementById("total-saldo").innerText = formatRupiah(totalMasuk - totalKeluar);
+
+            if (isAdmin) {
+                document.getElementById("current-role-text").innerText = "Pengurus Kelas (Admin)";
+                document.getElementById("current-role-text").style.background = "#fee2e2";
+                document.getElementById("current-role-text").style.color = "#991b1b";
+                document.getElementById("admin-input-panel").style.display = "block";
+                document.getElementById("th-aksi").style.display = "table-cell";
+                document.getElementById("auth-btn").innerText = "Logout Admin";
+                document.getElementById("auth-btn").style.background = "var(--danger)";
+            } else {
+                document.getElementById("current-role-text").innerText = "Siswa (View Only)";
+                document.getElementById("current-role-text").style.background = "#e2e8f0";
+                document.getElementById("current-role-text").style.color = "var(--slate)";
+                document.getElementById("admin-input-panel").style.display = "none";
+                document.getElementById("th-aksi").style.display = "none";
+                document.getElementById("auth-btn").innerText = "Login Admin";
+                document.getElementById("auth-btn").style.background = "var(--primary-light)";
+                cancelEditMode(); // Reset form jika logout
+            }
+        }
+
+        function openLoginModal() {
+            if(isAdmin) {
+                isAdmin = false;
+                renderApplication();
+            } else {
+                document.getElementById("login-modal").style.display = "flex";
+                document.getElementById("admin-pin").focus();
+            }
+        }
+
+        function verifyAdmin() {
+            const pinInput = document.getElementById("admin-pin").value;
+            if(pinInput === ADMIN_PIN) {
+                isAdmin = true;
+                closeLoginModal();
+                renderApplication();
+            } else {
+                alert("PIN Salah! Akses khusus Ketua, Wakil, Bendahara, & Sekretaris.");
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById("login-modal").style.display = "none";
+            document.getElementById("admin-pin").value = "";
+        }
+
+        // FUNGSI SIMPAN (BISA INPUT BARU ATAU UPDATE EDIT)
+        function saveData(e) {
+            e.preventDefault();
+            if(!isAdmin) return;
+
+            const editId = document.getElementById("edit-id").value;
+            const date = document.getElementById("tx-date").value;
+            const type = document.getElementById("tx-type").value;
+            const amount = document.getElementById("tx-amount").value;
+            const desc = document.getElementById("tx-desc").value;
+
+            if (editId) {
+                // Mode Update / Edit Data Lama
+                kasData = kasData.map(item => {
+                    if (item.id == editId) {
+                        return { ...item, date, type, amount: parseInt(amount), desc };
+                    }
+                    return item;
+                });
+                alert("Data transaksi berhasil diperbarui!");
+            } else {
+                // Mode Tambah Data Baru
+                const newData = {
+                    id: Date.now(),
+                    date: date,
+                    desc: desc,
+                    type: type,
+                    amount: parseInt(amount)
+                };
+                kasData.push(newData);
+            }
+
+            localStorage.setItem("kasData_kelas5b", JSON.stringify(kasData));
+            cancelEditMode();
+            renderApplication();
+        }
+
+        // AKTIFKAN MODE EDIT (Data pindah ke form atas)
+        function startEditMode(id) {
+            const targetData = kasData.find(item => item.id === id);
+            if (!targetData) return;
+
+            document.getElementById("edit-id").value = targetData.id;
+            document.getElementById("tx-date").value = targetData.date;
+            document.getElementById("tx-type").value = targetData.type;
+            document.getElementById("tx-amount").value = targetData.amount;
+            document.getElementById("tx-desc").value = targetData.desc;
+
+            // Ubah teks tombol dan judul panel
+            document.getElementById("panel-title").innerText = "Panel Pengurus: Perubahan (Edit) Transaksi";
+            document.getElementById("btn-submit-form").innerText = "Update Transaksi";
+            document.getElementById("btn-submit-form").style.background = "var(--warning)";
+            document.getElementById("btn-cancel-edit").style.display = "inline-block";
+            
+            // Scroll otomatis ke form atas agar mudah mengeditnya
+            document.getElementById("admin-input-panel").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // BATALKAN MODE EDIT (Kembalikan form ke semula)
+        function cancelEditMode() {
+            document.getElementById("kas-form").reset();
+            document.getElementById("edit-id").value = "";
+            document.getElementById("panel-title").innerText = "Panel Pengurus: Input Laporan Mingguan";
+            document.getElementById("btn-submit-form").innerText = "Simpan Transaksi";
+            document.getElementById("btn-submit-form").style.background = "var(--success)";
+            document.getElementById("btn-cancel-edit").style.display = "none";
+        }
+
+        // FUNGSI HAPUS DATA KESALAHAN
+        function deleteData(id) {
+            if(!isAdmin) return;
+            if(confirm("Apakah pengurus yakin ingin menghapus kesalahan transaksi ini secara permanen?")) {
+                kasData = kasData.filter(item => item.id !== id);
+                localStorage.setItem("kasData_kelas5b", JSON.stringify(kasData));
+                renderApplication();
+            }
+        }
+
+        window.onload = renderApplication;
+    </script>
+</body>
+</html>
