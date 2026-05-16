@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transparansi Uang Kas & Audit</title>
+    <title>Transparansi Uang Kas & Keamanan Audit GPS</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -125,9 +125,12 @@
         </section>
 
         <section id="panelAuditLog" class="hidden bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg space-y-4 border border-red-900">
-            <div class="flex items-center space-x-2 text-red-400 border-b border-gray-800 pb-3">
-                <i class="fa-solid fa-user-shield text-xl"></i>
-                <h2 class="font-bold text-lg tracking-wide">SYSTEM AUDIT LOG (RAHASIA KETUA & OWNER)</h2>
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <div class="flex items-center space-x-2 text-red-400">
+                    <i class="fa-solid fa-user-shield text-xl"></i>
+                    <h2 class="font-bold text-lg tracking-wide">SYSTEM AUDIT LOG & GEOLOCATION (RAHASIA OWNER)</h2>
+                </div>
+                <span class="text-xs bg-red-950 text-red-400 border border-red-800 px-3 py-1 rounded font-mono font-bold">GPS TRACKING ACTIVE</span>
             </div>
             <div class="max-h-60 overflow-y-auto space-y-2 font-mono text-xs text-gray-300 divide-y divide-gray-800" id="auditContainer">
                 </div>
@@ -173,28 +176,26 @@
             return sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
         }
 
-        function catatLog(operator, aksi, detail) {
+        function catatLog(operator, aksi, detail, koordinat = "Tidak Terdeteksi") {
             const logBaru = {
                 waktu: new Date().toISOString().split('T')[0] + ' ' + dapatkanWaktuWIB(),
                 nama: operator,
                 tindakan: aksi,
-                rincian: detail
+                rincian: detail,
+                lokasi: koordinat
             };
             logs.unshift(logBaru);
             localStorage.setItem('kas_audit_logs', JSON.stringify(logs));
         }
 
-        // FUNGSI INI SUDAH DI-FIX AGAR POPUP BISA MUNCUL
         function toggleAuthModal() {
             if (userLogin) {
-                // Catat log dulu sebelum session dihapus
                 catatLog(userLogin, "LOGOUT", "Keluar dari sistem panel pengurus");
                 sessionStorage.removeItem('kas_user_session');
                 userLogin = null;
                 cekLogin();
                 renderData();
             } else {
-                // Langsung munculin modal kotak login tanpa ketahan script
                 document.getElementById('authModal').classList.toggle('hidden');
             }
         }
@@ -204,18 +205,45 @@
             const sandi = document.getElementById('loginPass').value.trim();
 
             if (kunciAkses[sandi]) {
-                userLogin = kunciAkses[sandi];
-                sessionStorage.setItem('kas_user_session', userLogin);
-                document.getElementById('authModal').classList.add('hidden');
-                document.getElementById('loginPass').value = "";
+                const jabatan = kunciAkses[sandi];
                 
-                catatLog(userLogin, "LOGIN SUCCESS", "Berhasil melewati verifikasi PIN otoritas");
-                
-                cekLogin();
-                renderData();
+                // SYSTEM GEOLOCATION TRACKING (Mencari koordinat login)
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            // Berhasil mengambil koordinat GPS
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            const koordinatString = `${lat}, ${lon}`;
+                            
+                            eksekusiLogin(jabatan, koordinatString);
+                        },
+                        (error) => {
+                            // Browser menolak/akses GPS dimatikan pengurus
+                            eksekusiLogin(jabatan, "Akses Lokasi Ditolak Pengurus ❌");
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                } else {
+                    // Browser jadul/tidak dukung GPS
+                    eksekusiLogin(jabatan, "Tidak Didukung Browser ❌");
+                }
             } else {
                 alert("Password Salah!");
             }
+        }
+
+        function eksekusiLogin(jabatan, lokasiHasil) {
+            userLogin = jabatan;
+            sessionStorage.setItem('kas_user_session', userLogin);
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('loginPass').value = "";
+            
+            // Catat aktivitas login sekaligus simpan titik koordinatnya
+            catatLog(userLogin, "LOGIN SUCCESS", "Berhasil masuk ke otoritas data", lokasiHasil);
+            
+            cekLogin();
+            renderData();
         }
 
         function cekLogin() {
@@ -229,6 +257,7 @@
                 txtNama.innerText = userLogin;
                 btnText.innerText = "Logout (" + userLogin + ")";
                 
+                // HANYA KETUA KELAS (OWNER) yang bisa melihat panel koordinat GPS
                 if (userLogin === "Ketua Kelas") {
                     panelAudit.classList.remove('hidden');
                 } else {
@@ -262,7 +291,7 @@
             transaksi.unshift(dataBaru);
             localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
             
-            catatLog(userLogin, "TAMBAH DATA", `Mencatat kas ${kategori} (${jenis}): Rp ${nominal.toLocaleString('id-ID')} untuk '${keterangan}'`);
+            catatLog(userLogin, "TAMBAH DATA", `Mencatat kas ${kategori} (${jenis}): Rp ${nominal.toLocaleString('id-ID')} ('${keterangan}')`);
 
             document.getElementById('inpNominal').value = "";
             document.getElementById('inpKeterangan').value = "";
@@ -275,7 +304,7 @@
                 transaksi = transaksi.filter(item => item.id !== id);
                 localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
                 
-                catatLog(userLogin, "HAPUS DATA", `Menghapus catatan ${itemDihapus.kategori} senilai Rp ${itemDihapus.nominal.toLocaleString('id-ID')} ('${itemDihapus.keterangan}') yang di-PJ oleh ${itemDihapus.pj}`);
+                catatLog(userLogin, "HAPUS DATA", `Menghapus catatan ${itemDihapus.kategori} Rp ${itemDihapus.nominal.toLocaleString('id-ID')} ('${itemDihapus.keterangan}')`);
                 
                 renderData();
             }
@@ -377,18 +406,29 @@
 
             logs.forEach(l => {
                 const div = document.createElement('div');
-                div.className = "py-2 leading-relaxed";
+                div.className = "py-2 leading-relaxed flex flex-col md:flex-row md:justify-between border-b border-gray-800/50 pb-1";
                 
                 let warnaAksi = "text-blue-400";
                 if (l.tindakan === "TAMBAH DATA") warnaAksi = "text-green-400";
                 if (l.tindakan === "HAPUS DATA") warnaAksi = "text-red-500 font-bold";
                 if (l.tindakan === "LOGIN SUCCESS") warnaAksi = "text-amber-400";
 
+                // Membuat link otomatis ke Google Maps berdasarkan koordinat GPS pelacak
+                let mapsLink = "";
+                if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
+                    mapsLink = `<a href="https://www.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
+                }
+
                 div.innerHTML = `
-                    <span class="text-gray-500">[${l.waktu}]</span> 
-                    <span class="text-purple-400 uppercase font-bold">${l.nama}</span> -> 
-                    <span class="${warnaAksi}">[${l.tindakan}]</span> : 
-                    <span class="text-gray-300">${l.rincian}</span>
+                    <div>
+                        <span class="text-gray-500">[${l.waktu}]</span> 
+                        <span class="text-purple-400 uppercase font-bold">${l.nama}</span> -> 
+                        <span class="${warnaAksi}">[${l.tindakan}]</span> : 
+                        <span class="text-gray-300">${l.rincian}</span>
+                    </div>
+                    <div class="text-gray-400 font-mono text-right text-[11px] mt-1 md:mt-0">
+                        <i class="fa-solid fa-location-crosshairs text-red-400"></i> Koordinat: <span class="text-yellow-200 font-bold">${l.lokasi}</span> ${mapsLink}
+                    </div>
                 `;
                 container.appendChild(div);
             });
