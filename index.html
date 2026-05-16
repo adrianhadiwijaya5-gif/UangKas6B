@@ -187,4 +187,236 @@
 
         <div id="admin-input-panel" class="main-content admin-panel">
             <h2 id="panel-title" class="section-title" style="color: #b45309;">Panel Pengurus: Input Laporan Mingguan</h2>
-            <form id="kas-
+            <form id="kas-form" onsubmit="saveData(event)">
+                <input type="hidden" id="edit-id" value="">
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="form-group">
+                        <label>Tanggal Transaksi</label>
+                        <input type="date" id="tx-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Transaksi</label>
+                        <select id="tx-type" class="form-control" required>
+                            <option value="masuk">Pemasukan (Uang Kas Masuk)</option>
+                            <option value="keluar">Pengeluaran (Belanja Kelas)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Uang (Rupiah)</label>
+                        <input type="number" id="tx-amount" class="form-control" placeholder="Contoh: 50000" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan Keperluan</label>
+                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Kas Minggu Ke-1" required>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" id="btn-submit-form" class="btn btn-primary" style="background: var(--success);">Simpan Transaksi</button>
+                    <button type="button" id="btn-cancel-edit" class="btn" style="background: #cbd5e1; display: none;" onclick="cancelEditMode()">Batal Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="main-content">
+            <h2 class="section-title">Buku Mutasi Transaksi Kas</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Jenis</th>
+                            <th>Jumlah</th>
+                            <th id="th-aksi" style="display: none;">Kelola Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Verifikasi Akses Admin</h3>
+            <p style="font-size: 13px; color: var(--slate); margin-bottom: 15px;">Khusus Pengurus Kelas 6B</p>
+            <div class="form-group">
+                <input type="password" id="admin-pin" class="form-control" style="text-align: center; letter-spacing: 5px;" placeholder="PIN KAS">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn" style="background: #e2e8f0;" onclick="closeLoginModal()">Batal</button>
+                <button class="btn btn-primary" onclick="verifyAdmin()">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PIN = "123456"; 
+        let isAdmin = false;
+        let kasData = JSON.parse(localStorage.getItem("kasData_kelas6b")) || [];
+
+        function formatRupiah(angka) {
+            return "Rp " + parseInt(angka).toLocaleString("id-ID");
+        }
+
+        function renderApplication() {
+            const tbody = document.getElementById("data-table-body");
+            tbody.innerHTML = "";
+            
+            let totalMasuk = 0;
+            let totalKeluar = 0;
+
+            if(kasData.length > 0) {
+                kasData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                kasData.forEach(item => {
+                    if(item.type === "masuk") totalMasuk += parseInt(item.amount);
+                    else totalKeluar += parseInt(item.amount);
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.desc}</td>
+                        <td><span class="type-badge ${item.type === 'masuk' ? 'type-in' : 'type-out'}">${item.type.toUpperCase()}</span></td>
+                        <td>${formatRupiah(item.amount)}</td>
+                        ${isAdmin ? `
+                        <td>
+                            <div class="btn-group-action">
+                                <button class="btn btn-warning" style="padding:4px 8px; font-size:11px;" onclick="startEditMode(${item.id})">Edit</button>
+                                <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteData(${item.id})">Hapus</button>
+                            </div>
+                        </td>
+                        ` : ''}
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="text-align:center; color:var(--slate); padding:20px;">Belum ada data laporan keuangan minggu ini.</td></tr>`;
+            }
+
+            document.getElementById("total-masuk").innerText = formatRupiah(totalMasuk);
+            document.getElementById("total-keluar").innerText = formatRupiah(totalKeluar);
+            document.getElementById("total-saldo").innerText = formatRupiah(totalMasuk - totalKeluar);
+
+            if (isAdmin) {
+                document.getElementById("current-role-text").innerText = "Pengurus Kelas (Admin)";
+                document.getElementById("current-role-text").style.background = "#fee2e2";
+                document.getElementById("current-role-text").style.color = "#991b1b";
+                document.getElementById("admin-input-panel").style.display = "block";
+                document.getElementById("th-aksi").style.display = "table-cell";
+                document.getElementById("auth-btn").innerText = "Logout Admin";
+                document.getElementById("auth-btn").style.background = "var(--danger)";
+            } else {
+                document.getElementById("current-role-text").innerText = "Siswa (View Only)";
+                document.getElementById("current-role-text").style.background = "#e2e8f0";
+                document.getElementById("current-role-text").style.color = "var(--slate)";
+                document.getElementById("admin-input-panel").style.display = "none";
+                document.getElementById("th-aksi").style.display = "none";
+                document.getElementById("auth-btn").innerText = "Login Admin";
+                document.getElementById("auth-btn").style.background = "var(--primary-light)";
+                cancelEditMode();
+            }
+        }
+
+        function openLoginModal() {
+            if(isAdmin) {
+                isAdmin = false;
+                renderApplication();
+            } else {
+                document.getElementById("login-modal").style.display = "flex";
+                document.getElementById("admin-pin").focus();
+            }
+        }
+
+        function verifyAdmin() {
+            const pinInput = document.getElementById("admin-pin").value;
+            if(pinInput === ADMIN_PIN) {
+                isAdmin = true;
+                closeLoginModal();
+                renderApplication();
+            } else {
+                alert("PIN Salah! Akses khusus Pengurus Kelas 6B.");
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById("login-modal").style.display = "none";
+            document.getElementById("admin-pin").value = "";
+        }
+
+        function saveData(e) {
+            e.preventDefault();
+            if(!isAdmin) return;
+
+            const editId = document.getElementById("edit-id").value;
+            const date = document.getElementById("tx-date").value;
+            const type = document.getElementById("tx-type").value;
+            const amount = document.getElementById("tx-amount").value;
+            const desc = document.getElementById("tx-desc").value;
+
+            if (editId) {
+                kasData = kasData.map(item => {
+                    if (item.id == editId) {
+                        return { ...item, date, type, amount: parseInt(amount), desc };
+                    }
+                    return item;
+                });
+                alert("Data transaksi berhasil diperbarui!");
+            } else {
+                const newData = {
+                    id: Date.now(),
+                    date: date,
+                    desc: desc,
+                    type: type,
+                    amount: parseInt(amount)
+                };
+                kasData.push(newData);
+            }
+
+            localStorage.setItem("kasData_kelas6b", JSON.stringify(kasData));
+            cancelEditMode();
+            renderApplication();
+        }
+
+        function startEditMode(id) {
+            const targetData = kasData.find(item => item.id === id);
+            if (!targetData) return;
+
+            document.getElementById("edit-id").value = targetData.id;
+            document.getElementById("tx-date").value = targetData.date;
+            document.getElementById("tx-type").value = targetData.type;
+            document.getElementById("tx-amount").value = targetData.amount;
+            document.getElementById("tx-desc").value = targetData.desc;
+
+            document.getElementById("panel-title").innerText = "Panel Pengurus: Perubahan (Edit) Transaksi";
+            document.getElementById("btn-submit-form").innerText = "Update Transaksi";
+            document.getElementById("btn-submit-form").style.background = "var(--warning)";
+            document.getElementById("btn-cancel-edit").style.display = "inline-block";
+            
+            document.getElementById("admin-input-panel").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEditMode() {
+            document.getElementById("kas-form").reset();
+            document.getElementById("edit-id").value = "";
+            document.getElementById("panel-title").innerText = "Panel Pengurus: Input Laporan Mingguan";
+            document.getElementById("btn-submit-form").innerText = "Simpan Transaksi";
+            document.getElementById("btn-submit-form").style.background = "var(--success)";
+            document.getElementById("btn-cancel-edit").style.display = "none";
+        }
+
+        function deleteData(id) {
+            if(!isAdmin) return;
+            if(confirm("Apakah pengurus yakin ingin menghapus kesalahan transaksi ini secara permanen?")) {
+                kasData = kasData.filter(item => item.id !== id);
+                localStorage.setItem("kasData_kelas6b", JSON.stringify(kasData));
+                renderApplication();
+            }
+        }
+
+        window.onload = renderApplication;
+    </script>
+</body>
+</html>
