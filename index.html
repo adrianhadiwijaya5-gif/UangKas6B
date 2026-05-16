@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Kas Kelas 6B</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -142,6 +143,10 @@
         .admin-panel { display: none; background: #fffcf5; border: 1px solid #fef3c7; }
         .owner-panel { display: none; background: #faf5ff; border: 1px solid #e9d5ff; }
         
+        /* Box Panel Diagram */
+        .chart-panel { display: none; background: var(--white); text-align: center; }
+        .chart-container { position: relative; margin: auto; height: 260px; width: 260px; }
+
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
         .form-control {
@@ -193,6 +198,14 @@
             <div class="card danger">
                 <h3>Total Pengeluaran</h3>
                 <div id="total-keluar" class="amount" style="color: var(--danger)">Rp 0</div>
+            </div>
+        </div>
+
+        <div id="evaluation-chart-panel" class="main-content chart-panel">
+            <h2 class="section-title" style="color: var(--primary-light);">📊 Rata-rata Persentase Uang Kas Keluar Masuk</h2>
+            <p id="chart-trigger-reason" style="font-size: 12px; color: var(--slate); margin-bottom: 15px; font-style: italic;"></p>
+            <div class="chart-container">
+                <canvas id="kasPieChart"></canvas>
             </div>
         </div>
 
@@ -295,14 +308,12 @@
     </div>
 
     <script>
-        // ===================================================
-        // KUNCI CODES AUTENTIKASI UTAMA (NATO PHONETIC ALPHABET)
-        // ===================================================
         const ADMIN_PIN = "GOLFINDIAMIKE"; 
         const OWNER_PIN = "PAPAKILOINDIALIMAXRAY"; 
 
         let isAdmin = false;
         let isOwner = false;
+        let myChartInstance = null;
 
         let kasData = JSON.parse(localStorage.getItem("kasData_kelas6b")) || [];
         let auditLogs = JSON.parse(localStorage.getItem("auditLogs_kelas6b")) || [];
@@ -326,6 +337,76 @@
             };
             auditLogs.push(newLog);
             localStorage.setItem("auditLogs_kelas6b", JSON.stringify(auditLogs));
+        }
+
+        // FUNGSI RENDER DIAGRAM 2 WARNA MURNI (HIJAU VS MERAH)
+        function updatePieChart(totalMasuk, totalKeluar) {
+            document.getElementById("evaluation-chart-panel").style.display = "block";
+
+            // Hitung persentase murni
+            const gabungan = totalMasuk + totalKeluar;
+            const persenMasuk = gabungan > 0 ? ((totalMasuk / gabungan) * 100).toFixed(1) : 0;
+            const persenKeluar = gabungan > 0 ? ((totalKeluar / gabungan) * 100).toFixed(1) : 0;
+
+            const ctx = document.getElementById('kasPieChart').getContext('2d');
+            if (myChartInstance !== null) {
+                myChartInstance.destroy();
+            }
+
+            myChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [`Pemasukan (${persenMasuk}%)`, `Pengeluaran (${persenKeluar}%)`],
+                    datasets: [{
+                        data: [totalMasuk, totalKeluar],
+                        backgroundColor: ['#10b981', '#ef4444'], // Hijau (Masuk), Merah (Keluar)
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function checkChartTriggers(totalMasuk, totalKeluar) {
+            if(kasData.length === 0) {
+                document.getElementById("evaluation-chart-panel").style.display = "none";
+                return;
+            }
+
+            // Aturan pemicu: Hitung berapa kali transaksi "masuk"
+            const totalTransaksiMasuk = kasData.filter(item => item.type === "masuk").length;
+            const isKelipatanEmpat = totalTransaksiMasuk > 0 && totalTransaksiMasuk % 4 === 0;
+
+            // Aturan pemicu cadangan: Jika waktu berjalan pembukuan sudah mencapai 1 bulan (30 hari)
+            let isSatuBulan = false;
+            if(kasData.length > 1) {
+                const dates = kasData.map(item => new Date(item.date));
+                const maxDate = new Date(Math.max.apply(null, dates));
+                const minDate = new Date(Math.min.apply(null, dates));
+                const diffDays = Math.ceil(Math.abs(maxDate - minDate) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 30) isSatuBulan = true;
+            }
+
+            // Jika salah satu syarat terpenuhi, tampilkan diagramnya
+            if (isKelipatanEmpat || isSatuBulan) {
+                let alasan = "";
+                if (isKelipatanEmpat) {
+                    alasan = `✨ Otomatis muncul karena jumlah transaksi masuk kelipatan 4 (${totalTransaksiMasuk}x Masuk).`;
+                } else {
+                    alasan = `📅 Otomatis muncul karena data uang kas sudah berjalan selama 1 bulan.`;
+                }
+                document.getElementById("chart-trigger-reason").innerText = alasan;
+                updatePieChart(totalMasuk, totalKeluar);
+            } else {
+                document.getElementById("evaluation-chart-panel").style.display = "none";
+            }
         }
 
         function renderApplication() {
@@ -365,6 +446,10 @@
             document.getElementById("total-keluar").innerText = formatRupiah(totalKeluar);
             document.getElementById("total-saldo").innerText = formatRupiah(totalMasuk - totalKeluar);
 
+            // Periksa pemicu diagram
+            checkChartTriggers(totalMasuk, totalKeluar);
+
+            // Render Log Audit Owner
             const logTbody = document.getElementById("log-table-body");
             logTbody.innerHTML = "";
             if (auditLogs.length > 0) {
@@ -441,7 +526,6 @@
         }
 
         function verifyLogin() {
-            // Mengubah input ke huruf besar otomatis agar tidak sensitif huruf kecil
             const pinInput = document.getElementById("admin-pin").value.trim().toUpperCase();
             const target = document.getElementById("login-target").value;
 
