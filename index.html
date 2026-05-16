@@ -413,12 +413,11 @@
                 if (l.tindakan === "HAPUS DATA") warnaAksi = "text-red-500 font-bold";
                 if (l.tindakan === "LOGIN SUCCESS") warnaAksi = "text-amber-400";
 
-                // KODE BARU YANG BENAR (Salin dan tempel di tempat yang sama):
+  // GANTI BLOK MAPSLINK LAMA KAMU DENGAN INI:
 let mapsLink = "";
 if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
     mapsLink = `<a href="https://www.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
 }
-
                 div.innerHTML = `
                     <div>
                         <span class="text-gray-500">[${l.waktu}]</span> 
