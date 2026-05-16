@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Kas Kelas 6B - Cloud System</title>
+    <title>Monitoring Kas Kelas 5B - Cloud System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -67,8 +67,8 @@
 <body>
 
     <header>
-        <h1>Portal Keuangan Kas Kelas 6B</h1>
-        <p>Sistem Kas Perisai Krisis Keuangan Kelas</p>
+        <h1>Portal Keuangan Kas Kelas 5B</h1>
+        <p>Transparansi Kas Mingguan dan Bulanan Siswa</p>
     </header>
 
     <div class="container">
@@ -201,10 +201,10 @@
     </div>
 
     <script>
-        // TEMPELKAN URL GOOGLE APPS SCRIPT WEB APP KAMU DI SINI
+        // ⚠️ JANGAN LUPA: Ganti teks di bawah dengan URL Web App /exec hasil Deploy Google Apps Script kamu!
         const CLOUD_API_URL = "MASUKKAN_URL_WEB_APP_KAMU_DISINI";
         
-        // KONFIGURASI KEAMANAN BARU KELAS 6B
+        // KONFIGURASI Kredensial Akses Pengurus
         const OWNER_CONFIG = {
             email: "adrianhadiwijaya5@gmail.com",
             password: "RIOGRANDE55",
@@ -218,7 +218,7 @@
         };
 
         let currentActiveRole = null; 
-        let loginMode = "pin"; // Mode default: 'pin' atau 'owner'
+        let loginMode = "pin"; 
         let myChartInstance = null;
         let kasData = [];
 
@@ -253,6 +253,7 @@
             const ctx = document.getElementById('kasPieChart').getContext('2d');
             if (myChartInstance !== null) { myChartInstance.destroy(); }
 
+            // Murni diset hanya 2 warna: Hijau (#10b981) vs Merah (#ef4444)
             myChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -367,7 +368,7 @@
                 renderApplication(); 
             } else { 
                 document.getElementById("login-modal").style.display = "flex"; 
-                switchLoginMode('pin'); // reset ke mode PIN setiap buka modal
+                switchLoginMode('pin'); 
             }
         }
         
