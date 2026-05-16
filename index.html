@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Kas Kelas 6B</title>
+    <title>Monitoring Kas Kelas 6B - Cloud System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -12,184 +12,80 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --purple: #8b5cf6;
             --dark: #0f172a;
             --slate: #64748b;
-            --light: #f8fafc;
             --white: #ffffff;
-            --purple: #8b5cf6;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            background-color: #f1f5f9;
-            color: var(--dark);
-            padding-bottom: 40px;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: var(--white);
-            padding: 25px 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        header h1 { font-size: 24px; margin-bottom: 5px; }
-        header p { font-size: 14px; opacity: 0.9; }
-
-        .container {
-            max-width: 1000px;
-            margin: 25px auto;
-            padding: 0 15px;
-        }
-
-        .role-selector {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .role-badge {
-            background: #e2e8f0;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--slate);
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #f1f5f9; color: var(--dark); padding-bottom: 40px; }
+        header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: var(--white); padding: 25px 20px; text-align: center; }
+        .container { max-width: 1100px; margin: 25px auto; padding: 0 15px; }
+        .role-selector { background: var(--white); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .role-badge { background: #e2e8f0; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
         .btn-primary { background: var(--primary-light); color: var(--white); }
-        .btn-primary:hover { background: var(--primary); }
-        .btn-danger { background: var(--danger); color: var(--white); }
-        .btn-warning { background: var(--warning); color: var(--white); }
-        .btn-purple { background: var(--purple); color: var(--white); }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+        
+        /* 4 Kolom Statistik Grid Baris Atas */
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 25px; 
         }
-
-        .card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            border-left: 5px solid var(--primary-light);
-        }
+        .card { background: var(--white); padding: 20px; border-radius: 12px; border-left: 5px solid var(--primary-light); }
         .card.success { border-left-color: var(--success); }
         .card.danger { border-left-color: var(--danger); }
-
-        .card h3 { font-size: 14px; color: var(--slate); text-transform: uppercase; margin-bottom: 5px; }
-        .card .amount { font-size: 22px; font-weight: 700; }
-
-        .main-content {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            color: var(--primary);
-            margin-bottom: 15px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 8px;
-        }
-
-        .table-responsive { overflow-x: auto; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
-        }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #f8fafc; font-weight: 600; color: var(--slate); }
+        .card.purple { border-left-color: var(--purple); }
+        .card h3 { font-size: 13px; color: var(--slate); text-transform: uppercase; margin-bottom: 5px; }
+        .card .amount { font-size: 20px; font-weight: 700; }
         
-        .type-badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
-        }
+        .main-content { background: var(--white); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .section-title { font-size: 18px; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: var(--slate); }
+        .type-badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
         .type-in { background: #d1fae5; color: #065f46; }
         .type-out { background: #fee2e2; color: #991b1b; }
-
         .admin-panel { display: none; background: #fffcf5; border: 1px solid #fef3c7; }
-        .owner-panel { display: none; background: #faf5ff; border: 1px solid #e9d5ff; }
         
-        /* Box Panel Diagram */
         .chart-panel { display: none; background: var(--white); text-align: center; }
         .chart-container { position: relative; margin: auto; height: 260px; width: 260px; }
-
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-        .form-control {
-            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;
-        }
-
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; z-index: 100;
-        }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; width: 320px; text-align: center; }
-        
-        .btn-group-action { display: flex; gap: 5px; }
-        
-        .log-text { font-family: monospace; font-size: 12px; }
-        .log-add { color: #059669; }
-        .log-edit { color: #d97706; }
-        .log-delete { color: #dc2626; }
+        .loading { text-align: center; padding: 20px; color: var(--slate); font-style: italic; }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Portal Keuangan Kas Kelas 6B</h1>
-        <p>Transparansi Kas Mingguan dan Bulanan Siswa (Sistem Audit Anti-Penilepan)</p>
+        <p>Sistem Kas Perisai Krisis Keuangan Kelas</p>
     </header>
 
     <div class="container">
         <div class="role-selector">
             <div>
-                <span style="font-size: 14px;">Status Akses:</span>
+                <span>Status Akses:</span>
                 <span id="current-role-text" class="role-badge">Siswa (View Only)</span>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button id="auth-btn" class="btn btn-primary" onclick="openLoginModal('admin')">Login Pengurus</button>
-                <button id="owner-btn" class="btn btn-purple" onclick="openLoginModal('owner')">Login Owner</button>
-            </div>
+            <button id="auth-btn" class="btn btn-primary" onclick="openLoginModal()">Login Pengurus</button>
         </div>
 
         <div class="summary-grid">
             <div class="card">
-                <h3>Sisa Saldo Kas</h3>
+                <h3>Sisa Saldo Kas Utama</h3>
                 <div id="total-saldo" class="amount" style="color: var(--primary)">Rp 0</div>
+            </div>
+            <div class="card purple">
+                <h3>🛡️ Dana Darurat Kelas</h3>
+                <div id="total-darurat" class="amount" style="color: var(--purple)">Rp 0</div>
+                <span style="font-size: 11px; color: var(--slate)">Pencadangan otomatis 10% jika kas macet 2-3 bulan</span>
             </div>
             <div class="card success">
                 <h3>Total Pemasukan</h3>
@@ -202,7 +98,7 @@
         </div>
 
         <div id="evaluation-chart-panel" class="main-content chart-panel">
-            <h2 class="section-title" style="color: var(--primary-light);">📊 Rata-rata Persentase Uang Kas Keluar Masuk</h2>
+            <h2 class="section-title">📊 Rata-rata Persentase Uang Kas Keluar Masuk</h2>
             <p id="chart-trigger-reason" style="font-size: 12px; color: var(--slate); margin-bottom: 15px; font-style: italic;"></p>
             <div class="chart-container">
                 <canvas id="kasPieChart"></canvas>
@@ -210,70 +106,42 @@
         </div>
 
         <div id="admin-input-panel" class="main-content admin-panel">
-            <h2 id="panel-title" class="section-title" style="color: #b45309;">Panel Pengurus: Input Laporan Mingguan</h2>
+            <h2 class="section-title" style="color: #b45309;">Panel Pengurus: Input Laporan Keuangan</h2>
             <form id="kas-form" onsubmit="saveData(event)">
-                <input type="hidden" id="edit-id" value="">
-                
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Nama Anda (Pelaku Input)</label>
+                    <div class="form-group">
+                        <label>Nama Jabatan Pemegang Kas</label>
                         <select id="user-identity" class="form-control" required>
-                            <option value="">-- Pilih Jabatan --</option>
-                            <option value="Bendahara 1">Bendahara 1</option>
-                            <option value="Bendahara 2">Bendahara 2</option>
-                            <option value="Sekretaris">Sekretaris</option>
+                            <option value="Ketua Kelas/Bendahara Utama">Ketua Kelas / Bendahara Utama</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Tanggal Transaksi</label>
+                    <div class="form-group">
+                        <label>Tanggal</label>
                         <input type="date" id="tx-date" class="form-control" required>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Jenis Transaksi</label>
+                    <div class="form-group">
+                        <label>Jenis</label>
                         <select id="tx-type" class="form-control" required>
                             <option value="masuk">Pemasukan (Uang Kas Masuk)</option>
                             <option value="keluar">Pengeluaran (Belanja Kelas)</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Jumlah Uang (Rupiah)</label>
-                        <input type="number" id="tx-amount" class="form-control" placeholder="Contoh: 50000" required>
+                    <div class="form-group">
+                        <label>Jumlah Uang (Rp)</label>
+                        <input type="number" id="tx-amount" class="form-control" placeholder="5000" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Keterangan Keperluan</label>
-                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Kas Minggu Ke-1 / Beli Sapu Baru" required>
+                    <input type="text" id="tx-desc" class="form-control" placeholder="Contoh: Iuran Minggu 1" required>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" id="btn-submit-form" class="btn btn-primary" style="background: var(--success);">Simpan Transaksi</button>
-                    <button type="button" id="btn-cancel-edit" class="btn" style="background: #cbd5e1; display: none;" onclick="cancelEditMode()">Batal Edit</button>
-                </div>
+                <button type="submit" class="btn btn-primary" style="background: var(--success);">Simpan ke Cloud Database</button>
             </form>
         </div>
 
-        <div id="owner-log-panel" class="main-content owner-panel">
-            <h2 class="section-title" style="color: var(--purple);">Owner Blackbox: Log Audit Aktivitas Pengurus</h2>
-            <div style="margin-bottom: 10px; text-align: right;">
-                <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="clearLogs()">Hapus Semua Log</button>
-            </div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Waktu Sistem</th>
-                            <th>Petugas</th>
-                            <th>Tindakan</th>
-                            <th>Detail Riwayat Kejadian</th>
-                        </tr>
-                    </thead>
-                    <tbody id="log-table-body">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <div class="main-content">
-            <h2 class="section-title">Buku Mutasi Transaksi Kas</h2>
+            <h2 class="section-title">Buku Mutasi Transaksi Kas (Real-time Cloud)</h2>
+            <div id="loading-status" class="loading">Memuat data dari server cloud Google...</div>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -282,11 +150,10 @@
                             <th>Keterangan</th>
                             <th>Jenis</th>
                             <th>Jumlah</th>
-                            <th id="th-aksi" style="display: none;">Kelola Data</th>
+                            <th id="th-aksi" style="display: none;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="data-table-body">
-                    </tbody>
+                    <tbody id="data-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -294,64 +161,50 @@
 
     <div id="login-modal" class="modal">
         <div class="modal-content">
-            <h3 id="modal-title" style="margin-bottom: 15px;">Verifikasi Akses</h3>
-            <p id="modal-desc" style="font-size: 13px; color: var(--slate); margin-bottom: 15px;"></p>
-            <input type="hidden" id="login-target" value="">
+            <h3 style="margin-bottom: 15px;">Verifikasi Akses Pengurus</h3>
             <div class="form-group">
-                <input type="text" id="admin-pin" class="form-control" style="text-align: center; letter-spacing: 2px; font-weight: bold;" placeholder="MASUKKAN PIN">
+                <input type="password" id="admin-pin" class="form-control" style="text-align: center;" placeholder="MASUKKAN PIN">
             </div>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button class="btn" style="background: #e2e8f0;" onclick="closeLoginModal()">Batal</button>
-                <button class="btn btn-primary" id="btn-login-exec" onclick="verifyLogin()">Masuk</button>
-            </div>
+            <button class="btn" style="background: #e2e8f0;" onclick="closeLoginModal()">Batal</button>
+            <button class="btn btn-primary" onclick="verifyLogin()">Masuk</button>
         </div>
     </div>
 
     <script>
+        // MASUKKAN LINK URL APPS SCRIPT WEB APP KAMU YANG ADA DI GOOGLE SHEETS DISINI
+        const CLOUD_API_URL = "MASUKKAN_URL_WEB_APP_KAMU_DISINI";
         const ADMIN_PIN = "GOLFINDIAMIKE"; 
-        const OWNER_PIN = "PAPAKILOINDIALIMAXRAY"; 
 
         let isAdmin = false;
-        let isOwner = false;
         let myChartInstance = null;
+        let kasData = [];
 
-        let kasData = JSON.parse(localStorage.getItem("kasData_kelas6b")) || [];
-        let auditLogs = JSON.parse(localStorage.getItem("auditLogs_kelas6b")) || [];
+        function formatRupiah(angka) { return "Rp " + parseInt(angka).toLocaleString("id-ID"); }
 
-        function formatRupiah(angka) {
-            return "Rp " + parseInt(angka).toLocaleString("id-ID");
+        function loadCloudData() {
+            document.getElementById("loading-status").style.display = "block";
+            fetch(CLOUD_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    kasData = data;
+                    document.getElementById("loading-status").style.display = "none";
+                    renderApplication();
+                })
+                .catch(err => {
+                    document.getElementById("loading-status").innerText = "Gagal memuat data cloud. Periksa setelan URL API.";
+                    console.error(err);
+                });
         }
 
-        function getTimestamp() {
-            const now = new Date();
-            return now.toLocaleString("id-ID");
-        }
-
-        function addLog(user, action, detail, type) {
-            const newLog = {
-                timestamp: getTimestamp(),
-                user: user || "Sistem Tanpa Nama",
-                action: action,
-                detail: detail,
-                type: type 
-            };
-            auditLogs.push(newLog);
-            localStorage.setItem("auditLogs_kelas6b", JSON.stringify(auditLogs));
-        }
-
-        // FUNGSI RENDER DIAGRAM 2 WARNA MURNI (HIJAU VS MERAH)
+        // FUNGSI RENDER DIAGRAM LINGKARAN MURNI 2 WARNA (HIJAU VS MERAH)
         function updatePieChart(totalMasuk, totalKeluar) {
             document.getElementById("evaluation-chart-panel").style.display = "block";
-
-            // Hitung persentase murni
             const gabungan = totalMasuk + totalKeluar;
             const persenMasuk = gabungan > 0 ? ((totalMasuk / gabungan) * 100).toFixed(1) : 0;
             const persenKeluar = gabungan > 0 ? ((totalKeluar / gabungan) * 100).toFixed(1) : 0;
 
             const ctx = document.getElementById('kasPieChart').getContext('2d');
-            if (myChartInstance !== null) {
-                myChartInstance.destroy();
-            }
+            if (myChartInstance !== null) { myChartInstance.destroy(); }
 
             myChartInstance = new Chart(ctx, {
                 type: 'pie',
@@ -363,62 +216,44 @@
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
                 }
             });
         }
 
         function checkChartTriggers(totalMasuk, totalKeluar) {
-            if(kasData.length === 0) {
-                document.getElementById("evaluation-chart-panel").style.display = "none";
-                return;
-            }
-
-            // Aturan pemicu: Hitung berapa kali transaksi "masuk"
             const totalTransaksiMasuk = kasData.filter(item => item.type === "masuk").length;
             const isKelipatanEmpat = totalTransaksiMasuk > 0 && totalTransaksiMasuk % 4 === 0;
 
-            // Aturan pemicu cadangan: Jika waktu berjalan pembukuan sudah mencapai 1 bulan (30 hari)
             let isSatuBulan = false;
             if(kasData.length > 1) {
                 const dates = kasData.map(item => new Date(item.date));
-                const maxDate = new Date(Math.max.apply(null, dates));
-                const minDate = new Date(Math.min.apply(null, dates));
-                const diffDays = Math.ceil(Math.abs(maxDate - minDate) / (1000 * 60 * 60 * 24));
+                const diffDays = Math.ceil(Math.abs(Math.max(...dates) - Math.min(...dates)) / (1000 * 60 * 60 * 24));
                 if (diffDays >= 30) isSatuBulan = true;
             }
 
-            // Jika salah satu syarat terpenuhi, tampilkan diagramnya
             if (isKelipatanEmpat || isSatuBulan) {
-                let alasan = "";
-                if (isKelipatanEmpat) {
-                    alasan = `✨ Otomatis muncul karena jumlah transaksi masuk kelipatan 4 (${totalTransaksiMasuk}x Masuk).`;
-                } else {
-                    alasan = `📅 Otomatis muncul karena data uang kas sudah berjalan selama 1 bulan.`;
-                }
-                document.getElementById("chart-trigger-reason").innerText = alasan;
+                document.getElementById("chart-trigger-reason").innerText = isKelipatanEmpat ? 
+                    `✨ Otomatis muncul karena transaksi masuk kelipatan 4 (${totalTransaksiMasuk}x Masuk).` : 
+                    `📅 Otomatis muncul karena pembukuan kas sudah berjalan selama 1 bulan.`;
                 updatePieChart(totalMasuk, totalKeluar);
             } else {
                 document.getElementById("evaluation-chart-panel").style.display = "none";
             }
         }
 
+        // PROSES PERHITUNGAN AKURAT PEMBAGIAN ALOKASI KAS UTAMA VS DANA DARURAT
         function renderApplication() {
             const tbody = document.getElementById("data-table-body");
             tbody.innerHTML = "";
-            let totalMasuk = 0;
+            
+            let brutoMasuk = 0;
             let totalKeluar = 0;
 
+            // Urutkan data berdasarkan tanggal terbaru
             if(kasData.length > 0) {
                 kasData.sort((a, b) => new Date(b.date) - new Date(a.date));
                 kasData.forEach(item => {
-                    if(item.type === "masuk") totalMasuk += parseInt(item.amount);
+                    if(item.type === "masuk") brutoMasuk += parseInt(item.amount);
                     else totalKeluar += parseInt(item.amount);
 
                     const row = document.createElement("tr");
@@ -427,235 +262,90 @@
                         <td>${item.desc}</td>
                         <td><span class="type-badge ${item.type === 'masuk' ? 'type-in' : 'type-out'}">${item.type.toUpperCase()}</span></td>
                         <td>${formatRupiah(item.amount)}</td>
-                        ${isAdmin ? `
-                        <td>
-                            <div class="btn-group-action">
-                                <button class="btn btn-warning" style="padding:4px 8px; font-size:11px;" onclick="startEditMode(${item.id})">Edit</button>
-                                <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteData(${item.id})">Hapus</button>
-                            </div>
-                        </td>
-                        ` : ''}
+                        ${isAdmin ? `<td><button class="btn" style="background:var(--danger);color:white;padding:4px 8px;" onclick="deleteData('${item.id}')">Hapus</button></td>` : ''}
                     `;
                     tbody.appendChild(row);
                 });
             } else {
-                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" style="text-align:center; color:var(--slate); padding:20px;">Belum ada data laporan keuangan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada data di server.</td></tr>`;
             }
 
-            document.getElementById("total-masuk").innerText = formatRupiah(totalMasuk);
+            // Hitung Pencadangan Dana Darurat Otomatis Sebesar 10% dari Setiap Uang Masuk
+            let alokasiDarurat = Math.round(brutoMasuk * 0.10);
+            let sisaMasukUtama = brutoMasuk - alokasiDarurat;
+            
+            let sisaSaldoUtama = sisaMasukUtama - totalKeluar;
+            let finalDanaDarurat = alokasiDarurat;
+
+            // Logika Proteksi Krisis Kas Kosong:
+            // Jika Sisa Saldo Kas Utama habis (bernilai minus atau nol karena pengeluaran besar),
+            // maka Dana Darurat akan dikurangi otomatis untuk menutupi kekurangan pengeluaran tersebut.
+            if (sisaSaldoUtama < 0) {
+                finalDanaDarurat = alokasiDarurat + sisaSaldoUtama; // Mengurangi dana darurat
+                sisaSaldoUtama = 0; // Saldo kas utama ditahan di angka 0 (tidak minus)
+                if (finalDanaDarurat < 0) finalDanaDarurat = 0;
+            }
+
+            // Update Tampilan Angka di Panel Atas
+            document.getElementById("total-masuk").innerText = formatRupiah(brutoMasuk);
             document.getElementById("total-keluar").innerText = formatRupiah(totalKeluar);
-            document.getElementById("total-saldo").innerText = formatRupiah(totalMasuk - totalKeluar);
+            document.getElementById("total-saldo").innerText = formatRupiah(sisaSaldoUtama);
+            document.getElementById("total-darurat").innerText = formatRupiah(finalDanaDarurat);
 
-            // Periksa pemicu diagram
-            checkChartTriggers(totalMasuk, totalKeluar);
-
-            // Render Log Audit Owner
-            const logTbody = document.getElementById("log-table-body");
-            logTbody.innerHTML = "";
-            if (auditLogs.length > 0) {
-                [...auditLogs].reverse().forEach(log => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td style="font-size:12px; color:var(--slate);">${log.timestamp}</td>
-                        <td><strong>${log.user}</strong></td>
-                        <td><span class="log-text log-${log.type}">${log.action.toUpperCase()}</span></td>
-                        <td style="font-size:12px; font-family:monospace;">${log.detail}</td>
-                    `;
-                    logTbody.appendChild(row);
-                });
-            } else {
-                logTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--slate); padding:10px;">Belum ada riwayat aktivitas log.</td></tr>`;
-            }
-
-            if (isOwner) {
-                document.getElementById("current-role-text").innerText = "Owner Utama (Auditor)";
-                document.getElementById("current-role-text").style.background = "#faf5ff";
-                document.getElementById("current-role-text").style.color = "var(--purple)";
-                document.getElementById("owner-log-panel").style.display = "block";
-                document.getElementById("owner-btn").innerText = "Logout Owner";
-                document.getElementById("owner-btn").style.background = "var(--danger)";
-            } else {
-                document.getElementById("owner-log-panel").style.display = "none";
-                document.getElementById("owner-btn").innerText = "Login Owner";
-                document.getElementById("owner-btn").style.background = "var(--purple)";
-            }
+            // Cek Pemicu Diagram 2 Warna
+            checkChartTriggers(brutoMasuk, totalKeluar);
 
             if (isAdmin) {
-                document.getElementById("current-role-text").innerText = isOwner ? "Owner Utama (Auditor)" : "Pengurus Kelas (Admin)";
-                if(!isOwner) {
-                    document.getElementById("current-role-text").style.background = "#fee2e2";
-                    document.getElementById("current-role-text").style.color = "#991b1b";
-                }
+                document.getElementById("current-role-text").innerText = "Pengurus Kelas (Admin)";
                 document.getElementById("admin-input-panel").style.display = "block";
                 document.getElementById("th-aksi").style.display = "table-cell";
-                document.getElementById("auth-btn").innerText = "Logout Pengurus";
-                document.getElementById("auth-btn").style.background = "var(--danger)";
+                document.getElementById("auth-btn").innerText = "Logout";
             } else {
-                if(!isOwner) {
-                    document.getElementById("current-role-text").innerText = "Siswa (View Only)";
-                    document.getElementById("current-role-text").style.background = "#e2e8f0";
-                    document.getElementById("current-role-text").style.color = "var(--slate)";
-                }
+                document.getElementById("current-role-text").innerText = "Siswa (View Only)";
                 document.getElementById("admin-input-panel").style.display = "none";
                 document.getElementById("th-aksi").style.display = "none";
                 document.getElementById("auth-btn").innerText = "Login Pengurus";
-                document.getElementById("auth-btn").style.background = "var(--primary-light)";
-                cancelEditMode();
             }
         }
 
-        function openLoginModal(target) {
-            document.getElementById("login-target").value = target;
-            if (target === 'admin') {
-                if(isAdmin) { isAdmin = false; renderApplication(); } 
-                else {
-                    document.getElementById("modal-title").innerText = "Verifikasi Akses Pengurus";
-                    document.getElementById("modal-desc").innerText = "Khusus Bendahara & Sekretaris";
-                    document.getElementById("login-modal").style.display = "flex";
-                    document.getElementById("admin-pin").focus();
-                }
-            } else if (target === 'owner') {
-                if(isOwner) { isOwner = false; isAdmin = false; renderApplication(); } 
-                else {
-                    document.getElementById("modal-title").innerText = "Verifikasi Akses Owner";
-                    document.getElementById("modal-desc").innerText = "Khusus Ketua Kelas Utama / Auditor Sistem";
-                    document.getElementById("login-modal").style.display = "flex";
-                    document.getElementById("admin-pin").focus();
-                }
-            }
+        function openLoginModal() { 
+            if(isAdmin) { isAdmin = false; renderApplication(); } 
+            else { document.getElementById("login-modal").style.display = "flex"; }
         }
-
+        function closeLoginModal() { document.getElementById("login-modal").style.display = "none"; }
         function verifyLogin() {
-            const pinInput = document.getElementById("admin-pin").value.trim().toUpperCase();
-            const target = document.getElementById("login-target").value;
-
-            if (target === 'admin') {
-                if(pinInput === ADMIN_PIN) {
-                    isAdmin = true;
-                    closeLoginModal();
-                    renderApplication();
-                } else { alert("PIN Pengurus Salah!"); }
-            } else if (target === 'owner') {
-                if(pinInput === OWNER_PIN) {
-                    isOwner = true;
-                    isAdmin = true; 
-                    closeLoginModal();
-                    renderApplication();
-                } else { alert("PIN Owner Salah! Akses ditolak."); }
-            }
-        }
-
-        function closeLoginModal() {
-            document.getElementById("login-modal").style.display = "none";
+            if(document.getElementById("admin-pin").value === ADMIN_PIN) { isAdmin = true; closeLoginModal(); renderApplication(); }
+            else { alert("PIN Salah!"); }
             document.getElementById("admin-pin").value = "";
         }
 
         function saveData(e) {
             e.preventDefault();
-            if(!isAdmin) return;
+            const payload = {
+                action: "add",
+                date: document.getElementById("tx-date").value,
+                type: document.getElementById("tx-type").value,
+                amount: document.getElementById("tx-amount").value,
+                desc: document.getElementById("tx-desc").value,
+                operator: document.getElementById("user-identity").value
+            };
 
-            const editId = document.getElementById("edit-id").value;
-            const identity = document.getElementById("user-identity").value;
-            const date = document.getElementById("tx-date").value;
-            const type = document.getElementById("tx-type").value;
-            const amount = document.getElementById("tx-amount").value;
-            const desc = document.getElementById("tx-desc").value;
+            document.getElementById("loading-status").innerText = "Menyimpan ke Cloud Google...";
+            document.getElementById("loading-status").style.display = "block";
 
-            if (!identity) {
-                alert("Harap pilih identitas nama jabatan Anda sebelum menyimpan!");
-                return;
-            }
-
-            if (editId) {
-                const original = kasData.find(item => item.id == editId);
-                const logDetail = `MENGUBAH transaksi ID ${editId}. SEBELUMNYA: [${original.date} | ${original.desc} | ${original.type} | Rp ${parseInt(original.amount).toLocaleString()}] -> MENJADI: [${date} | ${desc} | ${type} | Rp ${parseInt(amount).toLocaleString()}]`;
-                
-                kasData = kasData.map(item => {
-                    if (item.id == editId) {
-                        return { ...item, date, type, amount: parseInt(amount), desc };
-                    }
-                    return item;
-                });
-                
-                addLog(identity, "Ubah Data", logDetail, "edit");
-                alert("Data transaksi berhasil diperbarui dan dicatat ke log owner!");
-            } else {
-                const newData = {
-                    id: Date.now(),
-                    date: date,
-                    desc: desc,
-                    type: type,
-                    amount: parseInt(amount)
-                };
-                kasData.push(newData);
-                
-                const logDetail = `MENAMBAH transaksi baru: [${date} | ${desc} | ${type} | Rp ${parseInt(amount).toLocaleString()}]`;
-                addLog(identity, "Tambah Data", logDetail, "add");
-            }
-
-            localStorage.setItem("kasData_kelas6b", JSON.stringify(kasData));
-            cancelEditMode();
-            renderApplication();
-        }
-
-        function startEditMode(id) {
-            const targetData = kasData.find(item => item.id === id);
-            if (!targetData) return;
-
-            document.getElementById("edit-id").value = targetData.id;
-            document.getElementById("tx-date").value = targetData.date;
-            document.getElementById("tx-type").value = targetData.type;
-            document.getElementById("tx-amount").value = targetData.amount;
-            document.getElementById("tx-desc").value = targetData.desc;
-
-            document.getElementById("panel-title").innerText = "Panel Pengurus: Perubahan (Edit) Transaksi";
-            document.getElementById("btn-submit-form").innerText = "Update Transaksi";
-            document.getElementById("btn-submit-form").style.background = "var(--warning)";
-            document.getElementById("btn-cancel-edit").style.display = "inline-block";
-            
-            document.getElementById("admin-input-panel").scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEditMode() {
-            document.getElementById("kas-form").reset();
-            document.getElementById("edit-id").value = "";
-            document.getElementById("panel-title").innerText = "Panel Pengurus: Input Laporan Mingguan";
-            document.getElementById("btn-submit-form").innerText = "Simpan Transaksi";
-            document.getElementById("btn-submit-form").style.background = "var(--success)";
-            document.getElementById("btn-cancel-edit").style.display = "none";
+            fetch(CLOUD_API_URL, { method: "POST", body: JSON.stringify(payload) })
+                .then(() => { document.getElementById("kas-form").reset(); loadCloudData(); })
+                .catch(() => alert("Gagal menyimpan data ke cloud."));
         }
 
         function deleteData(id) {
-            if(!isAdmin) return;
-            const targetData = kasData.find(item => item.id === id);
-            if (!targetData) return;
-
-            const identity = document.getElementById("user-identity").value || (isOwner ? "Owner Utama" : "");
-            if (!identity && !isOwner) {
-                alert("Untuk menghapus, mohon pilih 'Nama Anda (Pelaku Input)' terlebih dahulu di form bagian atas agar tercatat siapa yang menghapusnya.");
-                return;
-            }
-
-            if(confirm(`Apakah Anda yakin ingin menghapus data transaksi ini?\n[${targetData.desc} - Rp ${parseInt(targetData.amount).toLocaleString()}]`)) {
-                const logDetail = `MENGHAPUS PERMANEN transaksi: [${targetData.date} | ${targetData.desc} | ${targetData.type} | Rp ${parseInt(targetData.amount).toLocaleString()}]`;
-                
-                kasData = kasData.filter(item => item.id !== id);
-                localStorage.setItem("kasData_kelas6b", JSON.stringify(kasData));
-                
-                addLog(identity || "Owner Utama", "Hapus Data", logDetail, "delete");
-                renderApplication();
+            if(confirm("Hapus data ini secara permanen dari server cloud?")) {
+                fetch(CLOUD_API_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: id }) })
+                    .then(() => loadCloudData());
             }
         }
 
-        function clearLogs() {
-            if(confirm("Apakah Anda sebagai Owner yakin ingin mengosongkan seluruh riwayat log audit ini? Tindakan ini tidak bisa dibatalkan.")) {
-                auditLogs = [];
-                localStorage.removeItem("auditLogs_kelas6b");
-                renderApplication();
-            }
-        }
-
-        window.onload = renderApplication;
+        window.onload = loadCloudData;
     </script>
 </body>
 </html>
