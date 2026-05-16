@@ -184,14 +184,17 @@
             localStorage.setItem('kas_audit_logs', JSON.stringify(logs));
         }
 
+        // FUNGSI INI SUDAH DI-FIX AGAR POPUP BISA MUNCUL
         function toggleAuthModal() {
             if (userLogin) {
+                // Catat log dulu sebelum session dihapus
                 catatLog(userLogin, "LOGOUT", "Keluar dari sistem panel pengurus");
                 sessionStorage.removeItem('kas_user_session');
                 userLogin = null;
                 cekLogin();
                 renderData();
             } else {
+                // Langsung munculin modal kotak login tanpa ketahan script
                 document.getElementById('authModal').classList.toggle('hidden');
             }
         }
@@ -226,7 +229,6 @@
                 txtNama.innerText = userLogin;
                 btnText.innerText = "Logout (" + userLogin + ")";
                 
-                // HANYA KETUA KELAS yang bisa buka panel Audit Log
                 if (userLogin === "Ketua Kelas") {
                     panelAudit.classList.remove('hidden');
                 } else {
@@ -260,7 +262,6 @@
             transaksi.unshift(dataBaru);
             localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
             
-            // Rekam Jejak Audit
             catatLog(userLogin, "TAMBAH DATA", `Mencatat kas ${kategori} (${jenis}): Rp ${nominal.toLocaleString('id-ID')} untuk '${keterangan}'`);
 
             document.getElementById('inpNominal').value = "";
@@ -274,7 +275,6 @@
                 transaksi = transaksi.filter(item => item.id !== id);
                 localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
                 
-                // Rekam Jejak Audit Hapus
                 catatLog(userLogin, "HAPUS DATA", `Menghapus catatan ${itemDihapus.kategori} senilai Rp ${itemDihapus.nominal.toLocaleString('id-ID')} ('${itemDihapus.keterangan}') yang di-PJ oleh ${itemDihapus.pj}`);
                 
                 renderData();
@@ -359,3 +359,45 @@
                 cardBln.className = "bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-400 flex justify-between items-center";
                 iconSts.className = "bg-red-100 p-3 rounded-full text-red-600";
                 iconSts.innerHTML = '<i class="fa-solid fa-arrow-trend-down text-xl"></i>';
+            }
+
+            if (userLogin === "Ketua Kelas") {
+                renderAuditLog();
+            }
+        }
+
+        function renderAuditLog() {
+            const container = document.getElementById('auditContainer');
+            container.innerHTML = "";
+            
+            if (logs.length === 0) {
+                container.innerHTML = "<div class='py-2 text-gray-500 text-center'>Belum ada riwayat aktivitas pengurus.</div>";
+                return;
+            }
+
+            logs.forEach(l => {
+                const div = document.createElement('div');
+                div.className = "py-2 leading-relaxed";
+                
+                let warnaAksi = "text-blue-400";
+                if (l.tindakan === "TAMBAH DATA") warnaAksi = "text-green-400";
+                if (l.tindakan === "HAPUS DATA") warnaAksi = "text-red-500 font-bold";
+                if (l.tindakan === "LOGIN SUCCESS") warnaAksi = "text-amber-400";
+
+                div.innerHTML = `
+                    <span class="text-gray-500">[${l.waktu}]</span> 
+                    <span class="text-purple-400 uppercase font-bold">${l.nama}</span> -> 
+                    <span class="${warnaAksi}">[${l.tindakan}]</span> : 
+                    <span class="text-gray-300">${l.rincian}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.onload = function() {
+            cekLogin();
+            renderData();
+        };
+    </script>
+</body>
+</html>
