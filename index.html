@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Resmi Kelas & Transparansi Kas</title>
+    <title>INFORMASI KELAS 6B | Hub & Transparansi Kas</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3">
                 <i class="fa-solid fa-school text-amber-300 text-2xl"></i>
-                <span class="font-bold text-lg tracking-wide">WEBSITE HUB KELAS & PRAMUKA</span>
+                <span class="font-bold text-lg tracking-wide uppercase">INFORMASI KELAS 6B</span>
             </div>
             <div class="flex items-center space-x-4 text-sm font-medium">
                 <button onclick="pindahSektor(event, 'sektor-kas')" class="hover:text-amber-300 transition nav-link text-amber-300 font-bold cursor-pointer"><i class="fa-solid fa-wallet"></i> Uang Kas</button>
@@ -21,6 +21,7 @@
                 <button onclick="pindahSektor(event, 'sektor-kenangan')" class="hover:text-amber-300 transition nav-link cursor-pointer"><i class="fa-solid fa-images"></i> Kenangan</button>
             </div>
             <div class="flex items-center space-x-2">
+                <button onclick="toggleModal('creditModal')" class="bg-amber-500 hover:bg-amber-400 text-slate-900 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-star mr-1"></i>Credit</button>
                 <button id="signUpBtn" onclick="toggleModal('signUpModal')" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">Daftar Akun Siswa</button>
                 <button id="authBtn" onclick="toggleAuthModal()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer"><span id="authBtnText">Login Pengurus/Siswa</span></button>
             </div>
@@ -150,7 +151,7 @@
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center relative">
-                    <button id="btnEditWali" onclick="ubahWaliKelas()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button id="btnEditWali" onclick="ubahWaliKelas()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-chalkboard-user"></i> Edit</button>
                     <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-full flex justify-center items-center text-xl font-bold mb-2">
                         <i class="fa-solid fa-chalkboard-user"></i>
                     </div>
@@ -220,6 +221,42 @@
             </div>
         </section>
     </main>
+
+    <div id="creditModal" class="hidden fixed inset-0 bg-black/60 flex justify-center items-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100 transform transition-all">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 text-center relative">
+                <i class="fa-solid fa-code text-4xl mb-2 opacity-80"></i>
+                <h3 class="font-bold text-xl tracking-wide">Website Project Credits</h3>
+                <p class="text-xs text-blue-100 mt-1">Sistem Hub & Informasi Kelas 6B</p>
+            </div>
+            <div class="p-6 space-y-4 text-sm text-gray-700">
+                <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="text-amber-500 mt-0.5"><i class="fa-solid fa-crown text-lg"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Holder & Creator</p>
+                        <p class="font-bold text-gray-900 text-md">Adrian Hadi Wijaya</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="text-purple-500 mt-0.5"><i class="fa-solid fa-palette text-lg"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Asset & Background Base</p>
+                        <p class="font-bold text-gray-900 text-md">Adrian Hadi Wijaya</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="text-blue-500 mt-0.5"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">UI Design & Core Engine</p>
+                        <p class="font-bold text-gray-900 text-md">Gemini AI</p>
+                    </div>
+                </div>
+                <button type="button" onclick="toggleModal('creditModal')" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition shadow-md cursor-pointer mt-2">
+                    Tutup Detail
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="uploadFotoModal" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
