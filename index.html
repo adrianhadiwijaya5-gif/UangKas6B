@@ -55,7 +55,7 @@
                 </div>
             </section>
 
-            <section id="panelPengurus" class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm space-y-4">
+            <section id="panelPengurus" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b border-amber-200 pb-3">
                     <div class="flex items-center space-x-2 text-amber-800">
                         <i class="fa-solid fa-user-gear text-xl"></i>
@@ -140,7 +140,7 @@
 
             <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm text-center relative">
-                    <button onclick="ubahDataSiswa()" class="absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button id="btnEditSiswa" onclick="ubahDataSiswa()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                     <i class="fa-solid fa-children text-blue-500 text-4xl mb-2"></i>
                     <h3 id="txtTotalSiswa" class="text-xl font-bold text-gray-800">36 Siswa</h3>
                     <p class="text-xs text-gray-400 mt-1">Total Anggota Kelas aktif</p>
@@ -150,7 +150,7 @@
                     </div>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center relative">
-                    <button onclick="ubahWaliKelas()" class="absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button id="btnEditWali" onclick="ubahWaliKelas()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                     <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-full flex justify-center items-center text-xl font-bold mb-2">
                         <i class="fa-solid fa-chalkboard-user"></i>
                     </div>
@@ -158,7 +158,7 @@
                     <p class="text-xs text-amber-600 font-semibold mt-0.5">Wali Kelas & Penasihat Kas</p>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center relative">
-                    <button onclick="ubahJumlahGuru()" class="absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button id="btnEditGuru" onclick="ubahJumlahGuru()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                     <i class="fa-solid fa-graduation-cap text-purple-500 text-4xl mb-2"></i>
                     <h3 id="txtTotalGuru" class="text-xl font-bold text-gray-800">12 Guru</h3>
                     <p class="text-xs text-gray-400 mt-1">Mata Pelajaran Aktif</p>
@@ -182,7 +182,7 @@
                     <h2 class="font-bold text-gray-800 text-lg">Mading & Kenangan Kebersamaan</h2>
                     <p class="text-xs text-gray-500">Simpan momen berharga kelas di sini</p>
                 </div>
-                <button onclick="toggleModal('uploadFotoModal')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-sm cursor-pointer">
+                <button id="btnTambahFoto" onclick="toggleModal('uploadFotoModal')" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-sm cursor-pointer">
                     <i class="fa-solid fa-camera-retro mr-1"></i> Tambah Foto Kenangan
                 </button>
             </div>
@@ -191,7 +191,7 @@
                 </section>
         </div>
 
-        <section id="panelAuditLog" class="bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg space-y-6 border border-red-900">
+        <section id="panelAuditLog" class="hidden bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg space-y-6 border border-red-900">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <div class="flex items-center space-x-2 text-red-400">
                     <i class="fa-solid fa-user-shield text-xl"></i>
@@ -313,8 +313,9 @@
             guru: 12
         };
 
-        let userLogin = sessionStorage.getItem('kas_user_session') || "Developer";
-        let roleLogin = sessionStorage.getItem('kas_role_session') || "manajemen";
+        // Status default awal diatur kosong agar website terkunci total sebelum login resmi dilakukan
+        let userLogin = sessionStorage.getItem('kas_user_session') || "";
+        let roleLogin = sessionStorage.getItem('kas_role_session') || "siswa";
 
         const kunciAkses = {
             "INFITHAR82": { nama: "Ketua Kelas", role: "manajemen" },
@@ -346,8 +347,8 @@
                 catatLog(userLogin, "LOGOUT", "Keluar dari ekosistem website");
                 sessionStorage.removeItem('kas_user_session');
                 sessionStorage.removeItem('kas_role_session');
-                userLogin = "Developer";
-                roleLogin = "manajemen";
+                userLogin = "";
+                roleLogin = "siswa";
                 alert("Sesi login dibersihkan. Kembali ke mode bawaan.");
                 renderData();
             } else {
@@ -358,7 +359,7 @@
         function catatLog(operator, aksi, detail, koordinat = "Tidak Terdeteksi") {
             const logBaru = {
                 waktu: new Date().toISOString().split('T')[0] + ' ' + dapatkanWaktuWIB(),
-                nama: operator,
+                nama: operator || "Anonim",
                 tindakan: aksi,
                 rincian: detail,
                 lokasi: koordinat
@@ -376,7 +377,7 @@
                 statKelas.putri = parseInt(pi) || 0;
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah komposisi siswa menjadi ${pa} Putra & ${pi} Putri`);
-                renderData(); // Diperbaiki: memanggil renderData agar layar diupdate tanpa eror
+                renderData();
             }
         }
 
@@ -386,7 +387,7 @@
                 statKelas.wali = nama.trim();
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah nama Wali Kelas menjadi '${statKelas.wali}'`);
-                renderData(); // Diperbaiki: memanggil renderData
+                renderData();
             }
         }
 
@@ -396,7 +397,7 @@
                 statKelas.guru = parseInt(jml) || 0;
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah jumlah guru pengajar menjadi ${statKelas.guru}`);
-                renderData(); // Diperbaiki: memanggil renderData
+                renderData();
             }
         }
 
@@ -455,11 +456,16 @@
             localGalleryData.forEach(g => {
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group flex flex-col justify-between";
+                
+                // Tombol hapus foto hanya terlihat jika manajemen masuk
+                const tombolHapusHtml = (roleLogin === "manajemen") ? 
+                    `<button onclick="hapusFotoKenangan(${g.id})" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-full flex justify-center items-center shadow transition duration-200 opacity-0 group-hover:opacity-100 cursor-pointer"><i class="fa-regular fa-trash-can text-xs"></i></button>` : '';
+
                 card.innerHTML = `
                     <div>
                         <div class="w-full h-48 overflow-hidden bg-gray-100 relative">
                             <img src="${g.gambar}" class="w-full h-full object-cover" alt="Momen">
-                            <button onclick="hapusFotoKenangan(${g.id})" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-full flex justify-center items-center shadow transition duration-200 opacity-0 group-hover:opacity-100 cursor-pointer"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                            ${tombolHapusHtml}
                         </div>
                         <div class="p-4">
                             <h4 class="font-bold text-sm text-gray-800 line-clamp-1">${g.judul}</h4>
@@ -573,7 +579,7 @@
                 kategori: kategori,
                 nominal: nominal,
                 keterangan: keterangan,
-                pj: userLogin
+                pj: userLogin || "Anonim"
             };
 
             transaksi.unshift(dataBaru);
@@ -586,6 +592,12 @@
         }
 
         function hapusTransaksi(id) {
+            // Aksi hapus transaksi dibatasi hanya untuk login bertipe manajemen saja
+            if (roleLogin !== "manajemen") {
+                alert("Akses Ditolak! Hanya Pengurus Kelas/Wali Kelas yang bisa menghapus transaksi.");
+                return;
+            }
+
             const itemDihapus = transaksi.find(item => item.id === id);
             if (itemDihapus && confirm("Hapus catatan transaksi ini?")) {
                 transaksi = transaksi.filter(item => item.id !== id);
@@ -596,7 +608,31 @@
         }
 
         function renderData() {
-            // Re-fetch stat dari localstorage agar sinkron saat ada perubahan data
+            // SINKRONISASI VISIBILITAS PANEL DAN TOMBOL UTAMA BERDASARKAN STATUS LOGIN MANAJEMEN
+            const panelPengurus = document.getElementById('panelPengurus');
+            const panelAuditLog = document.getElementById('panelAuditLog');
+            const btnEditSiswa = document.getElementById('btnEditSiswa');
+            const btnEditWali = document.getElementById('btnEditWali');
+            const btnEditGuru = document.getElementById('btnEditGuru');
+            const btnTambahFoto = document.getElementById('btnTambahFoto');
+
+            if (roleLogin === "manajemen") {
+                panelPengurus.classList.remove('hidden');
+                panelAuditLog.classList.remove('hidden');
+                btnEditSiswa.classList.remove('hidden');
+                btnEditWali.classList.remove('hidden');
+                btnEditGuru.classList.remove('hidden');
+                btnTambahFoto.classList.remove('hidden');
+            } else {
+                panelPengurus.classList.add('hidden');
+                panelAuditLog.classList.add('hidden');
+                btnEditSiswa.classList.add('hidden');
+                btnEditWali.classList.add('hidden');
+                btnEditGuru.classList.add('hidden');
+                btnTambahFoto.classList.add('hidden');
+            }
+
+            // Re-fetch data statistik dari localstorage
             statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
                 putra: 16,
                 putri: 20,
@@ -604,7 +640,9 @@
                 guru: 12
             };
 
+            // Menyesuaikan teks tombol pojok kanan atas navbar
             document.getElementById('authBtnText').innerText = sessionStorage.getItem('kas_user_session') ? `Logout (${userLogin})` : "Login Pengurus/Siswa";
+            
             const tbody = document.getElementById('tabelBody');
             const filter = document.getElementById('filterKategori').value;
             tbody.innerHTML = "";
@@ -639,15 +677,18 @@
                 const warnaNominal = t.jenis === "masuk" ? "text-green-600 font-semibold" : "text-red-600 font-semibold";
                 const simbol = t.jenis === "masuk" ? "+" : "-";
 
+                // Tampilkan ikon hapus hanya jika rolenya adalah manajemen
+                const tombolAksiHtml = (roleLogin === "manajemen") ? 
+                    `<button onclick="hapusTransaksi(${t.id})" class="text-red-500 hover:text-red-700 cursor-pointer"><i class="fa-regular fa-trash-can"></i></button>` : 
+                    `<span class="text-gray-300 text-xs"><i class="fa-solid fa-lock"></i> Terkunci</span>`;
+
                 tr.innerHTML = `
                     <td class="py-3 px-5 text-xs text-gray-500">${t.tanggal}</td>
                     <td class="py-3 px-5"><span class="px-2 py-0.5 rounded text-xs font-bold ${badge}">${t.kategori}</span></td>
                     <td class="py-3 px-5 font-medium text-gray-800">${t.keterangan}</td>
                     <td class="py-3 px-5 text-right ${warnaNominal}">${simbol} ${formatRupiah(t.nominal)}</td>
                     <td class="py-3 px-5 text-center text-xs text-gray-500 uppercase font-semibold">${t.pj}</td>
-                    <td class="py-3 px-5 text-center">
-                        <button onclick="hapusTransaksi(${t.id})" class="text-red-500 hover:text-red-700 cursor-pointer"><i class="fa-regular fa-trash-can"></i></button>
-                    </td>
+                    <td class="py-3 px-5 text-center">${tombolAksiHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -725,7 +766,7 @@
 
                 let mapsLink = "";
                 if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
-                    mapsLink = `<a href="http://googleusercontent.com/maps.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
+                    mapsLink = `<a href="https://maps.google.com/?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
                 }
 
                 div.innerHTML = `
