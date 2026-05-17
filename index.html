@@ -3,152 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transparansi Uang Kas & Keamanan Audit GPS</title>
+    <title>Hub Resmi Kelas & Transparansi Kas</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans antialiased">
+<body class="bg-gray-100 font-sans antialiased text-gray-800">
 
-    <nav class="bg-blue-600 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-scale-balanced text-amber-300 text-xl"></i>
-                <span class="font-bold text-lg tracking-wide">KAS TRANSPARAN PRAMUKA & KELAS</span>
+                <i class="fa-solid fa-school text-amber-300 text-2xl"></i>
+                <span class="font-bold text-lg tracking-wide">WEBSITE HUB KELAS & PRAMUKA</span>
             </div>
-            <button id="authBtn" onclick="toggleAuthModal()" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg text-sm font-semibold transition">
-                <span id="authBtnText">Login Pengurus</span>
-            </button>
+            <div class="flex items-center space-x-4 text-sm font-medium">
+                <button onclick="pindahSektor('sektor-kas')" class="hover:text-amber-300 transition nav-link text-amber-300 font-bold"><i class="fa-solid fa-wallet"></i> Uang Kas</button>
+                <button onclick="pindahSektor('sektor-data')" class="hover:text-amber-300 transition nav-link"><i class="fa-solid fa-users"></i> Data Siswa & Guru</button>
+                <button onclick="pindahSektor('sektor-kenangan')" class="hover:text-amber-300 transition nav-link"><i class="fa-solid fa-images"></i> Kenangan</button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="signUpBtn" onclick="toggleModal('signUpModal')" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition">Daftar Akun Siswa</button>
+                <button id="authBtn" onclick="toggleAuthModal()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition">Login Pengurus/Siswa</button>
+            </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase">Total Saldo Kas</p>
-                    <p id="txtTotalSaldo" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
+        <div id="sektor-kas" class="sektor-konten space-y-6">
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Total Saldo Kas</p>
+                        <p id="txtTotalSaldo" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full text-green-600"><i class="fa-solid fa-wallet text-xl"></i></div>
                 </div>
-                <div class="bg-green-100 p-3 rounded-full text-green-600"><i class="fa-solid fa-wallet text-xl"></i></div>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase">Pengeluaran Bulan Ini</p>
-                    <p id="txtTotalKeluar" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Pengeluaran Bulan Ini</p>
+                        <p id="txtTotalKeluar" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full text-red-600"><i class="fa-solid fa-arrow-up-from-bracket text-xl"></i></div>
                 </div>
-                <div class="bg-red-100 p-3 rounded-full text-red-600"><i class="fa-solid fa-arrow-up-from-bracket text-xl"></i></div>
-            </div>
-            <div id="cardStatusBulan" class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 uppercase">Arus Kas Bulan Ini</p>
-                    <p id="txtStatusBulan" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
-                    <p id="subStatusBulan" class="text-xs text-gray-400 mt-1">Menghitung data...</p>
+                <div id="cardStatusBulan" class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Arus Kas Bulan Ini</p>
+                        <p id="txtStatusBulan" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
+                        <p id="subStatusBulan" class="text-xs text-gray-400 mt-1">Menghitung data...</p>
+                    </div>
+                    <div id="iconStatusBulan" class="bg-blue-100 p-3 rounded-full text-blue-600"><i class="fa-solid fa-chart-line text-xl"></i></div>
                 </div>
-                <div id="iconStatusBulan" class="bg-blue-100 p-3 rounded-full text-blue-600"><i class="fa-solid fa-chart-line text-xl"></i></div>
-            </div>
-        </section>
+            </section>
 
-        <section id="panelPengurus" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm space-y-4">
-            <div class="flex justify-between items-center border-b border-amber-200 pb-3">
-                <div class="flex items-center space-x-2 text-amber-800">
-                    <i class="fa-solid fa-user-gear text-xl"></i>
-                    <h2 class="font-bold text-lg">Panel Input: <span id="txtNamaPengurus" class="uppercase text-red-600"></span></h2>
+            <section id="panelPengurus" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-amber-200 pb-3">
+                    <div class="flex items-center space-x-2 text-amber-800">
+                        <i class="fa-solid fa-user-gear text-xl"></i>
+                        <h2 class="font-bold text-lg">Panel Manajemen Kas: <span id="txtNamaPengurus" class="uppercase text-red-600"></span></h2>
+                    </div>
+                    <span class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full font-semibold">Otoritas Aktif</span>
                 </div>
-                <span class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full font-semibold">Sesi Aktif</span>
-            </div>
-            
-            <form id="formTransaksi" onsubmit="tambahTransaksi(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Jenis Arus</label>
-                    <select id="inpJenis" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                        <option value="masuk">Uang Masuk (+)</option>
-                        <option value="keluar">Uang Keluar (-)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Alokasi Kas</label>
-                    <select id="inpKategori" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                        <option value="Kelas">Uang Kas Kelas</option>
-                        <option value="Pramuka">Uang Kas Pramuka</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Nominal (Rp)</label>
-                    <input type="number" id="inpNominal" required min="1" placeholder="Contoh: 10000" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Keterangan Keperluan</label>
-                    <input type="text" id="inpKeterangan" required placeholder="Beli buku / iuran kas" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                </div>
-                <div>
-                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm">
-                        Simpan Catatan
-                    </button>
-                </div>
-            </form>
-        </section>
+                
+                <form id="formTransaksi" onsubmit="tambahTransaksi(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Jenis Arus</label>
+                        <select id="inpJenis" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
+                            <option value="masuk">Uang Masuk (+)</option>
+                            <option value="keluar">Uang Keluar (-)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Alokasi Kas</label>
+                        <select id="inpKategori" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
+                            <option value="Kelas">Uang Kas Kelas</option>
+                            <option value="Pramuka">Uang Kas Pramuka</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Nominal (Rp)</label>
+                        <input type="number" id="inpNominal" required min="1" placeholder="Contoh: 10000" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Keterangan Keperluan</label>
+                        <input type="text" id="inpKeterangan" required placeholder="Beli buku / iuran kas" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm">
+                            Simpan Catatan
+                        </button>
+                    </div>
+                </form>
+            </section>
 
-        <section class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                <div>
-                    <h2 class="font-bold text-gray-800 text-lg">Riwayat Transaksi Kas</h2>
-                    <p class="text-xs text-gray-500">Semua data pemasukan dan pengeluaran</p>
+            <section class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h2 class="font-bold text-gray-800 text-lg">Riwayat Transaksi Kas</h2>
+                        <p class="text-xs text-gray-500">Semua siswa bisa melihat, hanya manajemen yang bisa merubah</p>
+                    </div>
+                    <div>
+                        <select id="filterKategori" onchange="renderData()" class="bg-gray-50 border border-gray-300 text-gray-700 rounded-lg py-1 px-3 text-xs focus:outline-none">
+                            <option value="Semua">Semua Kas</option>
+                            <option value="Kelas">Kas Kelas Saja</option>
+                            <option value="Pramuka">Kas Pramuka Saja</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-xs font-bold uppercase border-b border-gray-200">
+                                <th class="py-3 px-5">Tanggal</th>
+                                <th class="py-3 px-5">Alokasi</th>
+                                <th class="py-3 px-5">Keterangan</th>
+                                <th class="py-3 px-5 text-right">Nominal</th>
+                                <th class="py-3 px-5 text-center">Penanggung Jawab</th>
+                                <th class="py-3 px-5 text-center action-head hidden">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="tabelKosong" class="p-8 text-center text-gray-400 hidden">
+                    Belum ada transaksi kas yang dicatat.
+                </div>
+            </section>
+        </div>
+
+        <div id="sektor-data" class="sektor-konten hidden space-y-6">
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <i class="fa-solid fa-children text-blue-500 text-4xl mb-2"></i>
+                    <h3 class="text-xl font-bold text-gray-800">36 Siswa</h3>
+                    <p class="text-xs text-gray-400 mt-1">Total Anggota Kelas aktif</p>
+                    <div class="mt-4 grid grid-cols-2 gap-2 text-sm border-t border-gray-100 pt-3">
+                        <div class="text-blue-600 font-semibold border-r border-gray-100">16 Putra</div>
+                        <div class="text-pink-600 font-semibold">20 Putri</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center">
+                    <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-full flex justify-center items-center text-2xl font-bold mb-2">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Ibu Sri Wahyuni, M.Pd.</h3>
+                    <p class="text-xs text-amber-600 font-semibold mt-0.5">Wali Kelas & Penasihat Kas</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center">
+                    <i class="fa-solid fa-graduation-cap text-purple-500 text-4xl mb-2"></i>
+                    <h3 class="text-xl font-bold text-gray-800">12 Guru</h3>
+                    <p class="text-xs text-gray-400 mt-1">Mata Pelajaran Aktif</p>
+                </div>
+            </section>
+
+            <section class="bg-white p-6 rounded-xl shadow-sm space-y-4">
+                <h3 class="font-bold text-gray-800 text-md border-b border-gray-100 pb-2"><i class="fa-solid fa-book-bookmark text-blue-500"></i> Struktur Pengajar Kelas</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div class="p-3 bg-gray-50 rounded-lg"><strong>Matematika:</strong> Pak Budi</div>
+                    <div class="p-3 bg-gray-50 rounded-lg"><strong>Bahasa Indonesia:</strong> Bu Siti</div>
+                    <div class="p-3 bg-gray-50 rounded-lg"><strong>Bahasa Arab:</strong> Ustadz Ahmad</div>
+                    <div class="p-3 bg-gray-50 rounded-lg"><strong>SBDP / Kesenian:</strong> Bu Mega</div>
+                </div>
+            </section>
+        </div>
+
+        <div id="sektor-kenangan" class="sektor-konten hidden space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-sm border-b border-gray-100 flex justify-between items-center">
                 <div>
-                    <select id="filterKategori" onchange="renderData()" class="bg-gray-50 border border-gray-300 text-gray-700 rounded-lg py-1 px-3 text-xs focus:outline-none">
-                        <option value="Semua">Semua Kas</option>
-                        <option value="Kelas">Kas Kelas Saja</option>
-                        <option value="Pramuka">Kas Pramuka Saja</option>
-                    </select>
+                    <h2 class="font-bold text-gray-800 text-lg">Mading & Kenangan Kelas</h2>
+                    <p class="text-xs text-gray-500">Kumpulan momen estetik kebersamaan kita</p>
                 </div>
             </div>
+            <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                    <div class="w-full h-48 bg-gray-300 flex justify-center items-center text-gray-500"><i class="fa-regular fa-image text-3xl"></i></div>
+                    <div class="p-4"><h4 class="font-bold text-sm text-gray-800">Lomba Pramuka Penggalang</h4><p class="text-xs text-gray-400 mt-1">November 2025</p></div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                    <div class="w-full h-48 bg-gray-300 flex justify-center items-center text-gray-500"><i class="fa-regular fa-image text-3xl"></i></div>
+                    <div class="p-4"><h4 class="font-bold text-sm text-gray-800">Classmeeting Semester 1</h4><p class="text-xs text-gray-400 mt-1">Desember 2025</p></div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                    <div class="w-full h-48 bg-gray-300 flex justify-center items-center text-gray-500"><i class="fa-regular fa-image text-3xl"></i></div>
+                    <div class="p-4"><h4 class="font-bold text-sm text-gray-800">Buka Puasa Bersama Kelas</h4><p class="text-xs text-gray-400 mt-1">Maret 2026</p></div>
+                </div>
+            </section>
+        </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-xs font-bold uppercase border-b border-gray-200">
-                            <th class="py-3 px-5">Tanggal</th>
-                            <th class="py-3 px-5">Alokasi</th>
-                            <th class="py-3 px-5">Keterangan</th>
-                            <th class="py-3 px-5 text-right">Nominal</th>
-                            <th class="py-3 px-5 text-center">Penanggung Jawab</th>
-                            <th class="py-3 px-5 text-center action-head hidden">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelBody" class="divide-y divide-gray-100 text-sm text-gray-700">
-                    </tbody>
-                </table>
-            </div>
-            <div id="tabelKosong" class="p-8 text-center text-gray-400 hidden">
-                Belum ada transaksi kas yang dicatat.
-            </div>
-        </section>
-
-        <section id="panelAuditLog" class="hidden bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg space-y-4 border border-red-900">
+        <section id="panelAuditLog" class="hidden bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg space-y-6 border border-red-900">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <div class="flex items-center space-x-2 text-red-400">
                     <i class="fa-solid fa-user-shield text-xl"></i>
-                    <h2 class="font-bold text-lg tracking-wide">SYSTEM AUDIT LOG & GEOLOCATION (RAHASIA OWNER)</h2>
+                    <h2 class="font-bold text-lg tracking-wide">DATABASE UTAMA & AUDIT LOG (RAHASIA MANAJEMEN)</h2>
                 </div>
-                <span class="text-xs bg-red-950 text-red-400 border border-red-800 px-3 py-1 rounded font-mono font-bold">GPS TRACKING ACTIVE</span>
+                <span class="text-xs bg-red-950 text-red-400 border border-red-800 px-3 py-1 rounded font-mono font-bold">MONITORING ACTIVE</span>
             </div>
-            <div class="max-h-60 overflow-y-auto space-y-2 font-mono text-xs text-gray-300 divide-y divide-gray-800" id="auditContainer">
+
+            <div class="space-y-2">
+                <h3 class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-database"></i> Akun Siswa Terdaftar di Sistem:</h3>
+                <div class="overflow-x-auto bg-gray-950 p-3 rounded-lg border border-gray-800">
+                    <table class="w-full text-left font-mono text-xs text-gray-300 divide-y divide-gray-800">
+                        <thead>
+                            <tr class="text-gray-500 uppercase">
+                                <th class="pb-2">Nama Lengkap Akun</th>
+                                <th class="pb-2">Status Database</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dbSiswaContainer" class="divide-y divide-gray-900">
+                            </tbody>
+                    </table>
                 </div>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="text-red-400 font-bold text-sm"><i class="fa-solid fa-clock-rotate-left"></i> Live Activity & GPS Tracking Log:</h3>
+                <div class="max-h-60 overflow-y-auto space-y-2 font-mono text-xs text-gray-300 divide-y divide-gray-800" id="auditContainer">
+                    </div>
+            </div>
         </section>
     </main>
+
+    <div id="signUpModal" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
+            <div class="text-center">
+                <h3 class="font-bold text-lg text-gray-800">Registrasi Akun Siswa Baru</h3>
+                <p class="text-xs text-gray-500">Wajib gunakan nama asli minimal 2 kata</p>
+            </div>
+            <form onsubmit="prosesSignUp(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Nama Asli Lengkap</label>
+                    <input type="text" id="regNama" required placeholder="Contoh: John Andrew" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Buat Kata Sandi/Password</label>
+                    <input type="password" id="regPass" required placeholder="Password Akun Anda..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
+                </div>
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="toggleModal('signUpModal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg text-sm transition">Batal</button>
+                    <button type="submit" class="w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-md">Daftar Sekarang</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div id="authModal" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
             <div class="text-center">
-                <h3 class="font-bold text-lg text-gray-800">Verifikasi Kode Pengurus</h3>
-                <p class="text-xs text-gray-500">Masukkan kata sandi jabatan kamu</p>
+                <h3 class="font-bold text-lg text-gray-800">Gerbang Log-In Otoritas</h3>
+                <p class="text-xs text-gray-500">Masukkan Nama / Kode untuk mengakses akun</p>
             </div>
             <form onsubmit="prosesLogin(event)" class="space-y-3">
                 <div>
-                    <input type="password" id="loginPass" required placeholder="Masukkan Password..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500 text-center tracking-widest font-bold">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Nama Pengguna / PIN Pengurus</label>
+                    <input type="text" id="loginPass" required placeholder="Masukkan Nama atau Kode Otoritas..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500 text-center font-bold">
                 </div>
-                <div class="flex space-x-2">
-                    <button type="button" onclick="toggleAuthModal()" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg text-sm transition">Batal</button>
+                <div id="boxSiswaPassword" class="hidden">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Password Akun Siswa</label>
+                    <input type="password" id="loginSiswaPass" placeholder="Masukkan Password Akun Anda..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500 text-center font-bold">
+                </div>
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="toggleModal('authModal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg text-sm transition">Batal</button>
                     <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-md">Masuk</button>
                 </div>
             </form>
@@ -158,13 +273,14 @@
     <script>
         let transaksi = JSON.parse(localStorage.getItem('kas_save_data')) || [];
         let logs = JSON.parse(localStorage.getItem('kas_audit_logs')) || [];
+        let dbSiswa = JSON.parse(localStorage.getItem('kas_db_siswa')) || [];
         let userLogin = sessionStorage.getItem('kas_user_session') || null;
+        let roleLogin = sessionStorage.getItem('kas_role_session') || null;
 
+        // Kode Kunci Otoritas Pengurus Utama (Bisa atur keuangan)
         const kunciAkses = {
-            "INFITHAR82": "Ketua Kelas",
-            "SABA34": "Wakil Ketua",
-            "JATSIYAH45": "Bendahara",
-            "SYURA42": "Sekretaris"
+            "INFITHAR82": { nama: "Ketua Kelas", role: "manajemen" },
+            "WALI99": { nama: "Wali Kelas", role: "manajemen" }
         };
 
         function formatRupiah(angka) {
@@ -174,6 +290,32 @@
         function dapatkanWaktuWIB() {
             const sekarang = new Date();
             return sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+        }
+
+        function pindahSektor(idSektor) {
+            document.querySelectorAll('.sektor-konten').forEach(el => el.classList.add('hidden'));
+            document.getElementById(idSektor).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('text-amber-300', 'font-bold'));
+            event.currentTarget.classList.add('text-amber-300', 'font-bold');
+        }
+
+        function toggleModal(idModal) {
+            document.getElementById(idModal).classList.toggle('hidden');
+        }
+
+        function toggleAuthModal() {
+            if (userLogin) {
+                catatLog(userLogin, "LOGOUT", "Keluar dari ekosistem website hub");
+                sessionStorage.removeItem('kas_user_session');
+                sessionStorage.removeItem('kas_role_session');
+                userLogin = null;
+                roleLogin = null;
+                cekLogin();
+                renderData();
+            } else {
+                document.getElementById('authModal').classList.remove('hidden');
+            }
         }
 
         function catatLog(operator, aksi, detail, koordinat = "Tidak Terdeteksi") {
@@ -188,59 +330,96 @@
             localStorage.setItem('kas_audit_logs', JSON.stringify(logs));
         }
 
-        function toggleAuthModal() {
-            if (userLogin) {
-                catatLog(userLogin, "LOGOUT", "Keluar dari sistem panel pengurus");
-                sessionStorage.removeItem('kas_user_session');
-                userLogin = null;
-                cekLogin();
-                renderData();
-            } else {
-                document.getElementById('authModal').classList.toggle('hidden');
+        // VALIDASI DAFTAR AKUN SISWA (MINIMAL 2 KATA)
+        function prosesSignUp(e) {
+            e.preventDefault();
+            const nama = document.getElementById('regNama').value.trim();
+            const pass = document.getElementById('regPass').value;
+
+            // Memeriksa spasi untuk memastikan nama minimal berisi 2 suku kata (Contoh: "John Andrew")
+            const jumlahKata = nama.split(/\s+/).length;
+
+            if (jumlahKata < 2) {
+                alert("Pendaftaran Gagal! Nama Lengkap harus menggunakan nama asli minimal 2 kata (Contoh: 'John Andrew').");
+                return;
             }
+
+            // Periksa jika nama sudah terdaftar sebelumnya
+            if (dbSiswa.some(s => s.nama.toLowerCase() === nama.toLowerCase())) {
+                alert("Nama ini sudah terdaftar di sistem!");
+                return;
+            }
+
+            dbSiswa.push({ nama: nama, password: pass });
+            localStorage.setItem('kas_db_siswa', JSON.stringify(dbSiswa));
+            alert("Pendaftaran Berhasil! Akun kamu sudah tercatat di database Ketua & Wali Kelas. Silakan login.");
+            toggleModal('signUpModal');
+            document.getElementById('regNama').value = "";
+            document.getElementById('regPass').value = "";
+            renderData();
         }
 
         function prosesLogin(e) {
             e.preventDefault();
-            const sandi = document.getElementById('loginPass').value.trim();
+            const inputUtama = document.getElementById('loginPass').value.trim();
+            const inputPasswordSiswa = document.getElementById('loginSiswaPass').value;
 
-            if (kunciAkses[sandi]) {
-                const jabatan = kunciAkses[sandi];
-                
-                // SYSTEM GEOLOCATION TRACKING (Mencari koordinat login)
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            // Berhasil mengambil koordinat GPS
-                            const lat = position.coords.latitude;
-                            const lon = position.coords.longitude;
-                            const koordinatString = `${lat}, ${lon}`;
-                            
-                            eksekusiLogin(jabatan, koordinatString);
-                        },
-                        (error) => {
-                            // Browser menolak/akses GPS dimatikan pengurus
-                            eksekusiLogin(jabatan, "Akses Lokasi Ditolak Pengurus ❌");
-                        },
-                        { enableHighAccuracy: true, timeout: 5000 }
-                    );
+            // 1. Cek Apakah yang login adalah Pengurus Utama (Ketua / Wali Kelas)
+            if (kunciAkses[inputUtama]) {
+                ambilKoordinatDanMasuk(kunciAkses[inputUtama].nama, kunciAkses[inputUtama].role);
+                return;
+            }
+
+            // 2. Cek Apakah yang login adalah Siswa Umum yang terdaftar di DB
+            const dataSiswaDitemukan = dbSiswa.find(s => s.nama.toLowerCase() === inputUtama.toLowerCase());
+            if (dataSiswaDitemukan) {
+                // Tampilkan form password input tambahan khusus siswa jika belum diisi
+                const boxPass = document.getElementById('boxSiswaPassword');
+                if (boxPass.classList.contains('hidden')) {
+                    boxPass.classList.remove('hidden');
+                    alert("Akun Siswa Ditemukan! Silakan masukkan kata sandi Anda di kolom bawahnya.");
+                    return;
+                }
+
+                if (dataSiswaDitemukan.password === inputPasswordSiswa) {
+                    ambilKoordinatDanMasuk(dataSiswaDitemukan.nama, "siswa");
+                    document.getElementById('boxSiswaPassword').classList.add('hidden');
+                    document.getElementById('loginSiswaPass').value = "";
                 } else {
-                    // Browser jadul/tidak dukung GPS
-                    eksekusiLogin(jabatan, "Tidak Didukung Browser ❌");
+                    alert("Kata Sandi Akun Siswa Salah!");
                 }
             } else {
-                alert("Password Salah!");
+                alert("Akses Tidak Dikenali! Periksa kembali PIN Pengurus atau Nama Terdaftar Anda.");
             }
         }
 
-        function eksekusiLogin(jabatan, lokasiHasil) {
-            userLogin = jabatan;
+        function ambilKoordinatDanMasuk(namaUser, roleUser) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const koordinatString = `${position.coords.latitude}, ${position.coords.longitude}`;
+                        eksekusiLogin(namaUser, roleUser, koordinatString);
+                    },
+                    (error) => {
+                        eksekusiLogin(namaUser, roleUser, "Akses Lokasi Ditolak/Dimatikan ❌");
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                eksekusiLogin(namaUser, roleUser, "Tidak Didukung Browser ❌");
+            }
+        }
+
+        function eksekusiLogin(nama, role, lokasi) {
+            userLogin = nama;
+            roleLogin = role;
             sessionStorage.setItem('kas_user_session', userLogin);
+            sessionStorage.setItem('kas_role_session', roleLogin);
+            
             document.getElementById('authModal').classList.add('hidden');
             document.getElementById('loginPass').value = "";
-            
-            // Catat aktivitas login sekaligus simpan titik koordinatnya
-            catatLog(userLogin, "LOGIN SUCCESS", "Berhasil masuk ke otoritas data", lokasiHasil);
+
+            catatLog(userLogin, "LOGIN SUCCESS", `Masuk sistem dengan hak akses [${role.toUpperCase()}]`, lokasi);
             
             cekLogin();
             renderData();
@@ -253,20 +432,21 @@
             const panelAudit = document.getElementById('panelAuditLog');
 
             if (userLogin) {
-                panel.classList.remove('hidden');
-                txtNama.innerText = userLogin;
                 btnText.innerText = "Logout (" + userLogin + ")";
                 
-                // HANYA KETUA KELAS (OWNER) yang bisa melihat panel koordinat GPS
-                if (userLogin === "Ketua Kelas") {
+                // HANYA KETUA KELAS & WALI KELAS (Role Manajemen) yang bisa mengatur kas & melihat log database
+                if (roleLogin === "manajemen") {
+                    panel.classList.remove('hidden');
                     panelAudit.classList.remove('hidden');
+                    txtNama.innerText = userLogin;
                 } else {
+                    panel.classList.add('hidden');
                     panelAudit.classList.add('hidden');
                 }
             } else {
                 panel.classList.add('hidden');
                 panelAudit.classList.add('hidden');
-                btnText.innerText = "Login Pengurus";
+                btnText.innerText = "Login Pengurus/Siswa";
             }
         }
 
@@ -290,7 +470,6 @@
 
             transaksi.unshift(dataBaru);
             localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
-            
             catatLog(userLogin, "TAMBAH DATA", `Mencatat kas ${kategori} (${jenis}): Rp ${nominal.toLocaleString('id-ID')} ('${keterangan}')`);
 
             document.getElementById('inpNominal').value = "";
@@ -303,9 +482,7 @@
             if (itemDihapus && confirm("Hapus catatan transaksi ini?")) {
                 transaksi = transaksi.filter(item => item.id !== id);
                 localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
-                
                 catatLog(userLogin, "HAPUS DATA", `Menghapus catatan ${itemDihapus.kategori} Rp ${itemDihapus.nominal.toLocaleString('id-ID')} ('${itemDihapus.keterangan}')`);
-                
                 renderData();
             }
         }
@@ -340,7 +517,7 @@
                 }
             });
 
-            if (userLogin) {
+            if (roleLogin === "manajemen") {
                 headAksi.classList.remove('hidden');
             } else {
                 headAksi.classList.add('hidden');
@@ -358,7 +535,7 @@
                     <td class="py-3 px-5 font-medium text-gray-800">${t.keterangan}</td>
                     <td class="py-3 px-5 text-right ${warnaNominal}">${simbol} ${formatRupiah(t.nominal)}</td>
                     <td class="py-3 px-5 text-center text-xs text-gray-500 uppercase font-semibold">${t.pj}</td>
-                    <td class="py-3 px-5 text-center action-cell ${userLogin ? '' : 'hidden'}">
+                    <td class="py-3 px-5 text-center action-cell ${roleLogin === 'manajemen' ? '' : 'hidden'}">
                         <button onclick="hapusTransaksi(${t.id})" class="text-red-500 hover:text-red-700"><i class="fa-regular fa-trash-can"></i></button>
                     </td>
                 `;
@@ -368,6 +545,7 @@
             document.getElementById('txtTotalSaldo').innerText = formatRupiah(saldoTotal);
             document.getElementById('txtTotalKeluar').innerText = formatRupiah(keluarBulanIni);
 
+            // Perhitungan surplus/defisit arus kas
             const cardBln = document.getElementById('cardStatusBulan');
             const txtSts = document.getElementById('txtStatusBulan');
             const subSts = document.getElementById('subStatusBulan');
@@ -390,9 +568,29 @@
                 iconSts.innerHTML = '<i class="fa-solid fa-arrow-trend-down text-xl"></i>';
             }
 
-            if (userLogin === "Ketua Kelas") {
+            if (roleLogin === "manajemen") {
                 renderAuditLog();
+                renderDatabaseSiswa();
             }
+        }
+
+        function renderDatabaseSiswa() {
+            const dbContainer = document.getElementById('dbSiswaContainer');
+            dbContainer.innerHTML = "";
+
+            if (dbSiswa.length === 0) {
+                dbContainer.innerHTML = "<tr><td colspan='2' class='py-2 text-gray-500 text-center'>Belum ada siswa yang mendaftar akun.</td></tr>";
+                return;
+            }
+
+            dbSiswa.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2 text-green-400 font-bold">${s.nama}</td>
+                    <td class="py-2 text-gray-400"><span class="bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700 text-[10px]">TERSIMPAN DI CLOUD</span></td>
+                `;
+                dbContainer.appendChild(tr);
+            });
         }
 
         function renderAuditLog() {
@@ -400,7 +598,7 @@
             container.innerHTML = "";
             
             if (logs.length === 0) {
-                container.innerHTML = "<div class='py-2 text-gray-500 text-center'>Belum ada riwayat aktivitas pengurus.</div>";
+                container.innerHTML = "<div class='py-2 text-gray-500 text-center'>Belum ada riwayat aktivitas log.</div>";
                 return;
             }
 
@@ -413,11 +611,11 @@
                 if (l.tindakan === "HAPUS DATA") warnaAksi = "text-red-500 font-bold";
                 if (l.tindakan === "LOGIN SUCCESS") warnaAksi = "text-amber-400";
 
-  // GANTI BLOK MAPSLINK LAMA KAMU DENGAN INI:
-let mapsLink = "";
-if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
-    mapsLink = `<a href="https://www.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
-}
+                let mapsLink = "";
+                if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
+                    mapsLink = `<a href="https://www.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
+                }
+
                 div.innerHTML = `
                     <div>
                         <span class="text-gray-500">[${l.waktu}]</span> 
