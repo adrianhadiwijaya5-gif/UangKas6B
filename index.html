@@ -165,14 +165,11 @@
                 </div>
             </section>
 
-            <section class="bg-white p-6 rounded-xl shadow-sm space-y-4">
+            <section class="bg-white p-6 rounded-xl shadow-sm space-y-4 relative">
+                <button id="btnEditMapel" onclick="ubahGuruMapel()" class="hidden absolute top-4 right-6 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit Daftar Pengajar</button>
                 <h3 class="font-bold text-gray-800 text-md border-b border-gray-100 pb-2"><i class="fa-solid fa-book-bookmark text-blue-500"></i> Struktur Pengajar Kelas</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div class="p-3 bg-gray-50 rounded-lg"><strong>Matematika:</strong> Pak Budi</div>
-                    <div class="p-3 bg-gray-50 rounded-lg"><strong>Bahasa Indonesia:</strong> Bu Siti</div>
-                    <div class="p-3 bg-gray-50 rounded-lg"><strong>Bahasa Arab:</strong> Ustadz Ahmad</div>
-                    <div class="p-3 bg-gray-50 rounded-lg"><strong>SBDP / Kesenian:</strong> Bu Mega</div>
-                </div>
+                <div id="containerMapel" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    </div>
             </section>
         </div>
 
@@ -313,6 +310,14 @@
             guru: 12
         };
 
+        // Data default Guru & Mapel
+        let dataGuruMapel = JSON.parse(localStorage.getItem('kas_guru_mapel')) || [
+            { mapel: "Matematika", guru: "Pak Budi" },
+            { mapel: "Bahasa Indonesia", guru: "Bu Siti" },
+            { mapel: "Bahasa Arab", guru: "Ustadz Ahmad" },
+            { mapel: "SBDP / Kesenian", guru: "Bu Mega" }
+        ];
+
         // Status default awal diatur kosong agar website terkunci total sebelum login resmi dilakukan
         let userLogin = sessionStorage.getItem('kas_user_session') || "";
         let roleLogin = sessionStorage.getItem('kas_role_session') || "siswa";
@@ -368,7 +373,7 @@
             localStorage.setItem('kas_audit_logs', JSON.stringify(logs));
         }
 
-        // --- SEKTOR 2: MANAJEMEN DATA SISWA & WALI ---
+        // --- SEKTOR 2: MANAJEMEN DATA SISWA & WALI & MAPEL ---
         function ubahDataSiswa() {
             const pa = prompt("Masukkan Jumlah Siswa Putra Terbaru:", statKelas.putra);
             const pi = prompt("Masukkan Jumlah Siswa Putri Terbaru:", statKelas.putri);
@@ -398,6 +403,32 @@
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah jumlah guru pengajar menjadi ${statKelas.guru}`);
                 renderData();
+            }
+        }
+
+        function ubahGuruMapel() {
+            let pesan = "Pilih baris nomor guru yang ingin diubah:\n";
+            dataGuruMapel.forEach((m, i) => {
+                pesan += `${i + 1}. ${m.mapel}: ${m.guru}\n`;
+            });
+            
+            const pilihan = prompt(pesan);
+            const indeks = parseInt(pilihan) - 1;
+
+            if (indeks >= 0 && indeks < dataGuruMapel.length) {
+                const mapelBaru = prompt(`Ubah Nama Mapel (Saat ini: ${dataGuruMapel[indeks].mapel}):`, dataGuruMapel[indeks].mapel);
+                const guruBaru = prompt(`Ubah Nama Pengajar (Saat ini: ${dataGuruMapel[indeks].guru}):`, dataGuruMapel[indeks].guru);
+                
+                if (mapelBaru && guruBaru) {
+                    const mapelLama = dataGuruMapel[indeks].mapel;
+                    dataGuruMapel[indeks].mapel = mapelBaru.trim();
+                    dataGuruMapel[indeks].guru = guruBaru.trim();
+                    localStorage.setItem('kas_guru_mapel', JSON.stringify(dataGuruMapel));
+                    catatLog(userLogin, "UBAH MAPEL", `Mengubah ${mapelLama} menjadi -> ${mapelBaru}: ${guruBaru}`);
+                    renderData();
+                }
+            } else if (pilihan !== null) {
+                alert("Nomor pilihan tidak valid!");
             }
         }
 
@@ -615,6 +646,7 @@
             const btnEditWali = document.getElementById('btnEditWali');
             const btnEditGuru = document.getElementById('btnEditGuru');
             const btnTambahFoto = document.getElementById('btnTambahFoto');
+            const btnEditMapel = document.getElementById('btnEditMapel');
 
             if (roleLogin === "manajemen") {
                 panelPengurus.classList.remove('hidden');
@@ -623,6 +655,7 @@
                 btnEditWali.classList.remove('hidden');
                 btnEditGuru.classList.remove('hidden');
                 btnTambahFoto.classList.remove('hidden');
+                btnEditMapel.classList.remove('hidden');
             } else {
                 panelPengurus.classList.add('hidden');
                 panelAuditLog.classList.add('hidden');
@@ -630,15 +663,32 @@
                 btnEditWali.classList.add('hidden');
                 btnEditGuru.classList.add('hidden');
                 btnTambahFoto.classList.add('hidden');
+                btnEditMapel.classList.add('hidden');
             }
 
-            // Re-fetch data statistik dari localstorage
+            // Re-fetch data statistik & mapel dari localstorage
             statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
                 putra: 16,
                 putri: 20,
                 wali: "Ibu Sri Wahyuni, M.Pd.",
                 guru: 12
             };
+            dataGuruMapel = JSON.parse(localStorage.getItem('kas_guru_mapel')) || [
+                { mapel: "Matematika", guru: "Pak Budi" },
+                { mapel: "Bahasa Indonesia", guru: "Bu Siti" },
+                { mapel: "Bahasa Arab", guru: "Ustadz Ahmad" },
+                { mapel: "SBDP / Kesenian", guru: "Bu Mega" }
+            ];
+
+            // Render komponen Mapel dinamis ke layar
+            const containerMapel = document.getElementById('containerMapel');
+            containerMapel.innerHTML = "";
+            dataGuruMapel.forEach(m => {
+                const divNode = document.createElement('div');
+                divNode.className = "p-3 bg-gray-50 rounded-lg";
+                divNode.innerHTML = `<strong>${m.mapel}:</strong> ${m.guru}`;
+                containerMapel.appendChild(divNode);
+            });
 
             // Menyesuaikan teks tombol pojok kanan atas navbar
             document.getElementById('authBtnText').innerText = sessionStorage.getItem('kas_user_session') ? `Logout (${userLogin})` : "Login Pengurus/Siswa";
@@ -762,11 +812,12 @@
                 if (l.tindakan === "HAPUS DATA") warnaAksi = "text-red-500 font-bold";
                 if (l.tindakan === "LOGIN SUCCESS") warnaAksi = "text-amber-400";
                 if (l.tindakan === "UBAH STATISTIK") warnaAksi = "text-purple-400 font-semibold";
+                if (l.tindakan === "UBAH MAPEL") warnaAksi = "text-purple-400 font-semibold";
                 if (l.tindakan === "TAMBAH FOTO") warnaAksi = "text-sky-400";
 
                 let mapsLink = "";
                 if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
-                    mapsLink = `<a href="https://maps.google.com/?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
+                    mapsLink = `<a href="https://www.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
                 }
 
                 div.innerHTML = `
