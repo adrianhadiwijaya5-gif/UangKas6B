@@ -322,9 +322,13 @@
         let userLogin = sessionStorage.getItem('kas_user_session') || "";
         let roleLogin = sessionStorage.getItem('kas_role_session') || "siswa";
 
+        // DATABASE AKSES PASSWORD BARU (AGAK SUSAH)
         const kunciAkses = {
-            "INFITHAR82": { nama: "Ketua Kelas", role: "manajemen" },
-            "WALI99": { nama: "Wali Kelas", role: "manajemen" }
+            "KTA82#X": { nama: "Ketua Kelas", role: "manajemen" },
+            "WLK99&Z": { nama: "Wali Kelas", role: "manajemen" },
+            "SKR55*Q": { nama: "Sekretaris", role: "manajemen" },
+            "BND77$M": { nama: "Bendahara 1", role: "manajemen" },
+            "BND88#P": { nama: "Bendahara 2", role: "manajemen" }
         };
 
         function formatRupiah(angka) {
@@ -623,7 +627,6 @@
         }
 
         function hapusTransaksi(id) {
-            // Aksi hapus transaksi dibatasi hanya untuk login bertipe manajemen saja
             if (roleLogin !== "manajemen") {
                 alert("Akses Ditolak! Hanya Pengurus Kelas/Wali Kelas yang bisa menghapus transaksi.");
                 return;
@@ -727,7 +730,6 @@
                 const warnaNominal = t.jenis === "masuk" ? "text-green-600 font-semibold" : "text-red-600 font-semibold";
                 const simbol = t.jenis === "masuk" ? "+" : "-";
 
-                // Tampilkan ikon hapus hanya jika rolenya adalah manajemen
                 const tombolAksiHtml = (roleLogin === "manajemen") ? 
                     `<button onclick="hapusTransaksi(${t.id})" class="text-red-500 hover:text-red-700 cursor-pointer"><i class="fa-regular fa-trash-can"></i></button>` : 
                     `<span class="text-gray-300 text-xs"><i class="fa-solid fa-lock"></i> Terkunci</span>`;
