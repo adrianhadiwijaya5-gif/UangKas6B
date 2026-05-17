@@ -16,13 +16,13 @@
                 <span class="font-bold text-lg tracking-wide">WEBSITE HUB KELAS & PRAMUKA</span>
             </div>
             <div class="flex items-center space-x-4 text-sm font-medium">
-                <button onclick="pindahSektor('sektor-kas')" class="hover:text-amber-300 transition nav-link text-amber-300 font-bold"><i class="fa-solid fa-wallet"></i> Uang Kas</button>
-                <button onclick="pindahSektor('sektor-data')" class="hover:text-amber-300 transition nav-link"><i class="fa-solid fa-users"></i> Data Siswa & Guru</button>
-                <button onclick="pindahSektor('sektor-kenangan')" class="hover:text-amber-300 transition nav-link"><i class="fa-solid fa-images"></i> Kenangan</button>
+                <button onclick="pindahSektor(event, 'sektor-kas')" class="hover:text-amber-300 transition nav-link text-amber-300 font-bold cursor-pointer"><i class="fa-solid fa-wallet"></i> Uang Kas</button>
+                <button onclick="pindahSektor(event, 'sektor-data')" class="hover:text-amber-300 transition nav-link cursor-pointer"><i class="fa-solid fa-users"></i> Data Siswa & Guru</button>
+                <button onclick="pindahSektor(event, 'sektor-kenangan')" class="hover:text-amber-300 transition nav-link cursor-pointer"><i class="fa-solid fa-images"></i> Kenangan</button>
             </div>
             <div class="flex items-center space-x-2">
-                <button id="signUpBtn" onclick="toggleModal('signUpModal')" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition">Daftar Akun Siswa</button>
-                <button id="authBtn" onclick="toggleAuthModal()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition"><span id="authBtnText">Login Pengurus/Siswa</span></button>
+                <button id="signUpBtn" onclick="toggleModal('signUpModal')" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">Daftar Akun Siswa</button>
+                <button id="authBtn" onclick="toggleAuthModal()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer"><span id="authBtnText">Login Pengurus/Siswa</span></button>
             </div>
         </div>
     </nav>
@@ -88,7 +88,7 @@
                         <input type="text" id="inpKeterangan" required placeholder="Beli buku / iuran kas" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
                     </div>
                     <div>
-                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm">
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm cursor-pointer">
                             Simpan Catatan
                         </button>
                     </div>
@@ -305,6 +305,7 @@
         let logs = JSON.parse(localStorage.getItem('kas_audit_logs')) || [];
         let dbSiswa = JSON.parse(localStorage.getItem('kas_db_siswa')) || [];
         
+        // Memastikan state awal dibaca dari localStorage jika sudah ada
         let statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
             putra: 16,
             putri: 20,
@@ -329,11 +330,11 @@
             return sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
         }
 
-        function pindahSektor(idSektor) {
+        function pindahSektor(e, idSektor) {
             document.querySelectorAll('.sektor-konten').forEach(el => el.classList.add('hidden'));
             document.getElementById(idSektor).classList.remove('hidden');
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('text-amber-300', 'font-bold'));
-            event.currentTarget.classList.add('text-amber-300', 'font-bold');
+            e.currentTarget.classList.add('text-amber-300', 'font-bold');
         }
 
         function toggleModal(idModal) {
@@ -347,8 +348,8 @@
                 sessionStorage.removeItem('kas_role_session');
                 userLogin = "Developer";
                 roleLogin = "manajemen";
-                renderData();
                 alert("Sesi login dibersihkan. Kembali ke mode bawaan.");
+                renderData();
             } else {
                 document.getElementById('authModal').classList.remove('hidden');
             }
@@ -375,7 +376,7 @@
                 statKelas.putri = parseInt(pi) || 0;
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah komposisi siswa menjadi ${pa} Putra & ${pi} Putri`);
-                renderStatistikSektorDua();
+                renderData(); // Diperbaiki: memanggil renderData agar layar diupdate tanpa eror
             }
         }
 
@@ -385,7 +386,7 @@
                 statKelas.wali = nama.trim();
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah nama Wali Kelas menjadi '${statKelas.wali}'`);
-                renderStatistikSektorDua();
+                renderData(); // Diperbaiki: memanggil renderData
             }
         }
 
@@ -395,16 +396,8 @@
                 statKelas.guru = parseInt(jml) || 0;
                 localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
                 catatLog(userLogin, "UBAH STATISTIK", `Mengubah jumlah guru pengajar menjadi ${statKelas.guru}`);
-                renderStatistikSektorDua();
+                renderData(); // Diperbaiki: memanggil renderData
             }
-        }
-
-        function renderStatistikSektorDua() {
-            document.getElementById('txtTotalSiswa').innerText = `${statKelas.putra + statKelas.putri} Siswa`;
-            document.getElementById('txtSiswaPutra').innerText = `${statKelas.putra} Putra`;
-            document.getElementById('txtSiswaPutri').innerText = `${statKelas.putri} Putri`;
-            document.getElementById('txtNamaWali').innerText = statKelas.wali;
-            document.getElementById('txtTotalGuru').innerText = `${statKelas.guru} Guru`;
         }
 
 
@@ -416,7 +409,6 @@
             const fileInput = document.getElementById('imgFile');
 
             if (fileInput.files && fileInput.files[0]) {
-                // Menggunakan URL.createObjectURL agar mendukung foto ukuran besar tanpa membuat LocalStorage penuh/crash
                 const blobUrl = URL.createObjectURL(fileInput.files[0]);
                 
                 const itemMomen = {
@@ -429,7 +421,6 @@
                 localGalleryData.unshift(itemMomen);
                 catatLog(userLogin, "TAMBAH FOTO", `Mengunggah foto kenangan baru: '${judul}'`);
                 
-                // Reset form input & tutup popup modal
                 document.getElementById('imgJudul').value = "";
                 document.getElementById('imgWaktu').value = "";
                 fileInput.value = "";
@@ -605,6 +596,14 @@
         }
 
         function renderData() {
+            // Re-fetch stat dari localstorage agar sinkron saat ada perubahan data
+            statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
+                putra: 16,
+                putri: 20,
+                wali: "Ibu Sri Wahyuni, M.Pd.",
+                guru: 12
+            };
+
             document.getElementById('authBtnText').innerText = sessionStorage.getItem('kas_user_session') ? `Logout (${userLogin})` : "Login Pengurus/Siswa";
             const tbody = document.getElementById('tabelBody');
             const filter = document.getElementById('filterKategori').value;
@@ -678,9 +677,15 @@
                 iconSts.innerHTML = '<i class="fa-solid fa-arrow-trend-down text-xl"></i>';
             }
 
+            // Memperbarui layar statistik Sektor 2 secara langsung
+            document.getElementById('txtTotalSiswa').innerText = `${statKelas.putra + statKelas.putri} Siswa`;
+            document.getElementById('txtSiswaPutra').innerText = `${statKelas.putra} Putra`;
+            document.getElementById('txtSiswaPutri').innerText = `${statKelas.putri} Putri`;
+            document.getElementById('txtNamaWali').innerText = statKelas.wali;
+            document.getElementById('txtTotalGuru').innerText = `${statKelas.guru} Guru`;
+
             renderAuditLog();
             renderDatabaseSiswa();
-            renderStatistikSektorDua();
             renderGallerySektorTiga();
         }
 
