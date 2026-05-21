@@ -155,14 +155,14 @@
                     <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-full flex justify-center items-center text-xl font-bold mb-2">
                         <i class="fa-solid fa-chalkboard-user"></i>
                     </div>
-                    <h3 id="txtNamaWali" class="text-md font-bold text-gray-800">Ibu Sri Wahyuni, M.Pd.</h3>
+                    <h3 id="txtNamaWali" class="text-md font-bold text-gray-800">Muhammad Eki Saputra S.E.</h3>
                     <p class="text-xs text-amber-600 font-semibold mt-0.5">Wali Kelas & Penasihat Kas</p>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center relative">
                     <button id="btnEditGuru" onclick="ubahJumlahGuru()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                     <i class="fa-solid fa-graduation-cap text-purple-500 text-4xl mb-2"></i>
                     <h3 id="txtTotalGuru" class="text-xl font-bold text-gray-800">12 Guru</h3>
-                    <p class="text-xs text-gray-400 mt-1">Mata Pelajaran Aktif</p>
+                    <p class="text-xs text-gray-400 mt-1">Mata Pelajaran Hack</p>
                 </div>
             </section>
 
@@ -339,11 +339,11 @@
         let logs = JSON.parse(localStorage.getItem('kas_audit_logs')) || [];
         let dbSiswa = JSON.parse(localStorage.getItem('kas_db_siswa')) || [];
         
-        // Memastikan state awal dibaca dari localStorage jika sudah ada
+        // Memastikan state awal dibaca dari localStorage jika sudah ada (Nama Wali diperbarui ke Eki Saputra)
         let statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
             putra: 16,
             putri: 20,
-            wali: "Ibu Sri Wahyuni, M.Pd.",
+            wali: "Muhammad Eki Saputra S.E.",
             guru: 12
         };
 
@@ -359,13 +359,13 @@
         let userLogin = sessionStorage.getItem('kas_user_session') || "";
         let roleLogin = sessionStorage.getItem('kas_role_session') || "siswa";
 
-        // DATABASE AKSES PASSWORD BARU (AGAK SUSAH)
+        // DATABASE PIN BARU YANG LEBIH MUDAH DIKETIK (TIDAK PAKAI SIMBOL RUMIT)
         const kunciAkses = {
-            "KTA82#X": { nama: "Ketua Kelas", role: "manajemen" },
-            "WLK99&Z": { nama: "Wali Kelas", role: "manajemen" },
-            "SKR55*Q": { nama: "Sekretaris", role: "manajemen" },
-            "BND77$M": { nama: "Bendahara 1", role: "manajemen" },
-            "BND88#P": { nama: "Bendahara 2", role: "manajemen" }
+            "KETUA6B": { nama: "Ketua Kelas", role: "manajemen" },
+            "WALI6B":  { nama: "Wali Kelas", role: "manajemen" },
+            "SEKRETARIS6B": { nama: "Sekretaris", role: "manajemen" },
+            "BENDAHARA1": { nama: "Bendahara 1", role: "manajemen" },
+            "BENDAHARA2": { nama: "Bendahara 2", role: "manajemen" }
         };
 
         function formatRupiah(angka) {
@@ -581,11 +581,13 @@
             const inputUtama = document.getElementById('loginPass').value.trim();
             const inputPasswordSiswa = document.getElementById('loginSiswaPass').value;
 
+            // Pengecekan Kunci Akses Manajemen (Bypass tanpa sandi ganda)
             if (kunciAkses[inputUtama]) {
                 ambilKoordinatDanMasuk(kunciAkses[inputUtama].nama, kunciAkses[inputUtama].role);
                 return;
             }
 
+            // Pengecekan Akun Siswa Terdaftar
             const dataSiswaDitemukan = dbSiswa.find(s => s.nama.toLowerCase() === inputUtama.toLowerCase());
             if (dataSiswaDitemukan) {
                 const boxPass = document.getElementById('boxSiswaPassword');
@@ -710,7 +712,7 @@
             statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
                 putra: 16,
                 putri: 20,
-                wali: "Ibu Sri Wahyuni, M.Pd.",
+                wali: "Muhammad Eki Saputra S.E.",
                 guru: 12
             };
             dataGuruMapel = JSON.parse(localStorage.getItem('kas_guru_mapel')) || [
