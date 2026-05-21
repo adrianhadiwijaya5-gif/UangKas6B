@@ -3,967 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INFORMASI KELAS 6B | Hub & Transparansi Kas</title>
+    <title>Dashboard Kelas & Al-Qur'an Smart Hub</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-arabic { font-family: 'Amiri', serif; }
+        .font-sans-custom { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased text-gray-800">
+<body class="bg-slate-900 font-sans-custom text-slate-100 min-h-screen antialiased">
 
-    <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-school text-amber-300 text-2xl"></i>
-                <span class="font-bold text-lg tracking-wide uppercase">INFORMASI KELAS 6B</span>
+                <div class="bg-emerald-600 p-2 rounded-xl text-white shadow-md shadow-emerald-950">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-sm tracking-wide bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">SMART CLASS & QUR'AN HUB</span>
+                    <p class="text-[9px] text-slate-500 font-mono tracking-wider">STATION: 2026215-INTEGRATED</p>
+                </div>
             </div>
-            <div class="flex items-center space-x-4 text-sm font-medium">
-                <button onclick="pindahSektor(event, 'sektor-kas')" class="hover:text-amber-300 transition nav-link text-amber-300 font-bold cursor-pointer"><i class="fa-solid fa-wallet"></i> Uang Kas</button>
-                <button onclick="pindahSektor(event, 'sektor-data')" class="hover:text-amber-300 transition nav-link cursor-pointer"><i class="fa-solid fa-users"></i> Data Siswa & Guru</button>
-                <button onclick="pindahSektor(event, 'sektor-kenangan')" class="hover:text-amber-300 transition nav-link cursor-pointer"><i class="fa-solid fa-images"></i> Kenangan</button>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="toggleModal('creditModal')" class="bg-amber-500 hover:bg-amber-400 text-slate-900 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer"><i class="fa-solid fa-star mr-1"></i>Credit</button>
-                <button id="signUpBtn" onclick="toggleModal('signUpModal')" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">Daftar Akun Siswa</button>
-                <button id="authBtn" onclick="toggleAuthModal()" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer"><span id="authBtnText">Login Pengurus/Siswa</span></button>
+            <div class="text-xs bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="networkStatus" class="text-slate-400 font-medium text-[10px]">Direct Access Mode</span>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
-        <div id="sektor-kas" class="sektor-konten space-y-6">
-            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase">Total Saldo Kas</p>
-                        <p id="txtTotalSaldo" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-full text-green-600"><i class="fa-solid fa-wallet text-xl"></i></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase">Pengeluaran Bulan Ini</p>
-                        <p id="txtTotalKeluar" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
-                    </div>
-                    <div class="bg-red-100 p-3 rounded-full text-red-600"><i class="fa-solid fa-arrow-up-from-bracket text-xl"></i></div>
-                </div>
-                <div id="cardStatusBulan" class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase">Arus Kas Bulan Ini</p>
-                        <p id="txtStatusBulan" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
-                        <p id="subStatusBulan" class="text-xs text-gray-400 mt-1">Menghitung data...</p>
-                    </div>
-                    <div id="iconStatusBulan" class="bg-blue-100 p-3 rounded-full text-blue-600"><i class="fa-solid fa-chart-line text-xl"></i></div>
-                </div>
-            </section>
-
-            <section id="panelPengurus" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm space-y-4">
-                <div class="flex justify-between items-center border-b border-amber-200 pb-3">
-                    <div class="flex items-center space-x-2 text-amber-800">
-                        <i class="fa-solid fa-user-gear text-xl"></i>
-                        <h2 class="font-bold text-lg">Panel Catatan Kas Kelas & Pramuka</h2>
-                    </div>
-                    <span class="text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded-full font-semibold">Mode Manajemen Aktif</span>
-                </div>
-                
-                <form id="formTransaksi" onsubmit="tambahTransaksi(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Jenis Arus</label>
-                        <select id="inpJenis" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                            <option value="masuk">Uang Masuk (+)</option>
-                            <option value="keluar">Uang Keluar (-)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Alokasi Kas</label>
-                        <select id="inpKategori" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                            <option value="Kelas">Uang Kas Kelas</option>
-                            <option value="Pramuka">Uang Kas Pramuka</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Nominal (Rp)</label>
-                        <input type="number" id="inpNominal" required min="1" placeholder="Contoh: 10000" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1">Keterangan Keperluan</label>
-                        <input type="text" id="inpKeterangan" required placeholder="Beli buku / iuran kas" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold p-2 rounded-lg text-sm transition shadow-sm cursor-pointer">
-                            Simpan Catatan
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <section class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                    <div>
-                        <h2 class="font-bold text-gray-800 text-lg">Riwayat Transaksi Kas</h2>
-                        <p class="text-xs text-gray-500">Data pengeluaran dan pemasukan kas</p>
-                    </div>
-                    <div>
-                        <select id="filterKategori" onchange="renderData()" class="bg-gray-50 border border-gray-300 text-gray-700 rounded-lg py-1 px-3 text-xs focus:outline-none">
-                            <option value="Semua">Semua Kas</option>
-                            <option value="Kelas">Kas Kelas Saja</option>
-                            <option value="Pramuka">Kas Pramuka Saja</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 text-gray-600 text-xs font-bold uppercase border-b border-gray-200">
-                                <th class="py-3 px-5">Tanggal</th>
-                                <th class="py-3 px-5">Alokasi</th>
-                                <th class="py-3 px-5">Keterangan</th>
-                                <th class="py-3 px-5 text-right">Nominal</th>
-                                <th class="py-3 px-5 text-center">Penanggung Jawab</th>
-                                <th class="py-3 px-5 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelBody" class="divide-y divide-gray-100 text-sm text-gray-700">
-                        </tbody>
-                    </table>
-                </div>
-                <div id="tabelKosong" class="p-8 text-center text-gray-400 hidden">
-                    Belum ada transaksi kas yang dicatat.
-                </div>
-            </section>
-        </div>
-
-        <div id="sektor-data" class="sektor-konten hidden space-y-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm">
-                <h2 class="font-bold text-gray-800 text-lg">Statistik Pengurus & Anggota Kelas</h2>
-                <p class="text-xs text-gray-500">Gunakan tombol edit di pojok kanan atas masing-masing kartu</p>
+        <section class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-xl space-y-3">
+            <div class="flex items-center space-x-2 text-teal-400 border-b border-slate-700 pb-2">
+                <i class="fa-solid fa-user-tie text-base"></i>
+                <h2 class="font-bold text-xs tracking-wide uppercase">Informasi Guru Mata Pelajaran</h2>
             </div>
-
-            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm text-center relative">
-                    <button id="btnEditSiswa" onclick="ubahDataSiswa()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                    <i class="fa-solid fa-children text-blue-500 text-4xl mb-2"></i>
-                    <h3 id="txtTotalSiswa" class="text-xl font-bold text-gray-800">36 Siswa</h3>
-                    <p class="text-xs text-gray-400 mt-1">Total Anggota Kelas aktif</p>
-                    <div class="mt-4 grid grid-cols-2 gap-2 text-sm border-t border-gray-100 pt-3">
-                        <div id="txtSiswaPutra" class="text-blue-600 font-semibold border-r border-gray-100">16 Putra</div>
-                        <div id="txtSiswaPutri" class="text-pink-600 font-semibold">20 Putri</div>
-                    </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-center">
+                    <span class="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Matematika</span>
+                    <span class="text-xs font-semibold text-slate-200 mt-0.5">Pak Budi</span>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center relative">
-                    <button id="btnEditWali" onclick="ubahWaliKelas()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-chalkboard-user"></i> Edit</button>
-                    <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-full flex justify-center items-center text-xl font-bold mb-2">
-                        <i class="fa-solid fa-chalkboard-user"></i>
-                    </div>
-                    <h3 id="txtNamaWali" class="text-md font-bold text-gray-800">Muhammad Eki Saputra S.E.</h3>
-                    <p class="text-xs text-amber-600 font-semibold mt-0.5">Wali Kelas & Penasihat Kas</p>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-center">
+                    <span class="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Bahasa Indonesia</span>
+                    <span class="text-xs font-semibold text-slate-200 mt-0.5">Bu Siti</span>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm text-center flex flex-col justify-center items-center relative">
-                    <button id="btnEditGuru" onclick="ubahJumlahGuru()" class="hidden absolute top-3 right-3 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                    <i class="fa-solid fa-graduation-cap text-purple-500 text-4xl mb-2"></i>
-                    <h3 id="txtTotalGuru" class="text-xl font-bold text-gray-800">12 Guru</h3>
-                    <p class="text-xs text-gray-400 mt-1">Mata Pelajaran Hack</p>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-center">
+                    <span class="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Bahasa Arab</span>
+                    <span class="text-xs font-semibold text-amber-400 mt-0.5">Ustadz Ahmad</span>
                 </div>
-            </section>
-
-            <section class="bg-white p-6 rounded-xl shadow-sm space-y-4 relative">
-                <button id="btnEditMapel" onclick="ubahGuruMapel()" class="hidden absolute top-4 right-6 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition cursor-pointer z-10"><i class="fa-solid fa-pen-to-square"></i> Edit Daftar Pengajar</button>
-                <h3 class="font-bold text-gray-800 text-md border-b border-gray-100 pb-2"><i class="fa-solid fa-book-bookmark text-blue-500"></i> Struktur Pengajar Kelas</h3>
-                <div id="containerMapel" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    </div>
-            </section>
-        </div>
-
-        <div id="sektor-kenangan" class="sektor-konten hidden space-y-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div>
-                    <h2 class="font-bold text-gray-800 text-lg">Mading & Kenangan Kebersamaan</h2>
-                    <p class="text-xs text-gray-500">Simpan momen berharga kelas di sini</p>
-                </div>
-                <button id="btnTambahFoto" onclick="toggleModal('uploadFotoModal')" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-sm cursor-pointer">
-                    <i class="fa-solid fa-camera-retro mr-1"></i> Tambah Foto Kenangan
-                </button>
-            </div>
-
-            <section id="galleryContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                </section>
-        </div>
-
-        <section id="panelAuditLog" class="hidden bg-gray-900 text-gray-100 p-6 rounded-xl shadow-lg space-y-6 border border-red-900">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-                <div class="flex items-center space-x-2 text-red-400">
-                    <i class="fa-solid fa-user-shield text-xl"></i>
-                    <h2 class="font-bold text-lg tracking-wide">DATABASE UTAMA & MAPS AUDIT LOG</h2>
-                </div>
-                <span class="text-xs bg-red-950 text-red-400 border border-red-800 px-3 py-1 rounded font-mono font-bold">MONITORING SYSTEM UNLOCKED</span>
-            </div>
-
-            <div class="space-y-2">
-                <h3 class="text-amber-400 font-bold text-sm"><i class="fa-solid fa-database"></i> Akun Siswa Terdaftar di Sistem:</h3>
-                <div class="overflow-x-auto bg-gray-950 p-3 rounded-lg border border-gray-800">
-                    <table class="w-full text-left font-mono text-xs text-gray-300 divide-y divide-gray-800">
-                        <thead>
-                            <tr class="text-gray-500 uppercase">
-                                <th class="pb-2">Nama Lengkap Akun</th>
-                                <th class="pb-2">Status Database</th>
-                                <th class="pb-2">Alasan Suspend (Jika ada)</th>
-                                <th class="pb-2 text-center">Aksi Otoritas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dbSiswaContainer" class="divide-y divide-gray-900">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <h3 class="text-red-400 font-bold text-sm"><i class="fa-solid fa-clock-rotate-left"></i> Live Activity & GPS Tracking Log:</h3>
-                <div class="max-h-60 overflow-y-auto space-y-2 font-mono text-xs text-gray-300 divide-y divide-gray-800" id="auditContainer">
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-700/50 flex flex-col justify-center">
+                    <span class="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">SBDP / Kesenian</span>
+                    <span class="text-xs font-semibold text-slate-200 mt-0.5">Bu Mega</span>
                 </div>
             </div>
         </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl space-y-4">
+                <div class="flex items-center space-x-2 text-emerald-400 border-b border-slate-700 pb-2">
+                    <i class="fa-solid fa-robot text-base"></i>
+                    <h2 class="font-bold text-xs tracking-wide uppercase">AI Ayat Scanner</h2>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Ketik koordinat angka dengan format <code class="text-emerald-300 font-mono">NomorSurah:NomorAyat</code> (Contoh: <code class="text-amber-400">112:1</code> untuk Al-Ikhlas ayat 1) lalu klik Analisis.
+                </p>
+                <div class="space-y-2">
+                    <input type="text" id="inpLinkAyat" placeholder="Contoh: 112:1" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-center font-bold font-mono text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <button onclick="prosesDeteksiAI()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition flex justify-center items-center gap-2 cursor-pointer shadow-md shadow-emerald-950">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Analisis & Lompat Ayat
+                    </button>
+                </div>
+
+                <div id="aiResultBox" class="hidden bg-slate-900/80 border border-slate-700/60 p-3 rounded-xl space-y-1">
+                    <p id="aiSurahResult" class="font-bold text-[11px] text-emerald-400 uppercase font-mono">-</p>
+                    <p id="aiAyahTextResult" class="font-arabic text-right text-base text-amber-300 leading-loose" dir="rtl"></p>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl space-y-4 md:col-span-2 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                        <div class="flex items-center space-x-2 text-amber-400">
+                            <i class="fa-solid fa-book-open-reader text-base"></i>
+                            <h2 class="font-bold text-xs tracking-wide uppercase">Interactive Tahfidz Lab</h2>
+                        </div>
+                        <button onclick="toggleModeSamar()" id="btnSamar" class="bg-slate-700 text-slate-200 px-2 py-0.5 rounded-lg text-[11px] font-bold cursor-pointer transition hover:bg-slate-600">
+                            <i class="fa-solid fa-eye-slash"></i> Ayat Menghilang: <span id="statusSamar" class="text-amber-400">OFF</span>
+                        </button>
+                    </div>
+
+                    <div class="my-4 bg-slate-900 p-6 rounded-2xl border border-slate-700/50 text-center space-y-3 min-h-[140px] flex flex-col justify-center relative">
+                        <div class="absolute top-2 left-3 text-[9px] font-mono text-slate-500" id="infoNomorAyat">Memuat data Engine...</div>
+                        <div id="displayAyatArab" class="font-arabic text-2xl md:text-3xl text-slate-100 tracking-wide leading-loose select-none transition-all duration-300 pt-1 text-center" dir="rtl">-</div>
+                        <div id="displayTerjemahan" class="text-xs text-slate-400 max-w-xl mx-auto">-</div>
+                    </div>
+
+                    <div class="bg-slate-900/50 border border-slate-700/60 p-3 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center text-[10px]">
+                            <span class="font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-microphone-lines text-rose-400 mr-1"></i> Real-time Audio Checker</span>
+                            <span id="aiFeedbackStatus" class="bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-slate-500 font-mono">Standby</span>
+                        </div>
+                        <p id="txtHasilSuara" class="italic text-slate-500 font-arabic text-right w-full text-sm" dir="rtl">Tekan tombol mic untuk menguji hafalan lafadz...</p>
+                        <div id="boxStatusKoreksi" class="hidden p-2 rounded-lg text-xs font-bold text-center border"></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-slate-700/60 mt-2">
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <button onclick="pindahAyat(-1)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition">◀ Sebelum</button>
+                        <button onclick="pindahAyat(1)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition">Berikutnya ▶</button>
+                    </div>
+                    <button id="btnMic" onclick="toggleDengarSuara()" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition shadow-md shadow-rose-950">
+                        <i id="iconMic" class="fa-solid fa-microphone"></i> <span id="textMic">Uji Suara (Mic)</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-xl">
+            <div class="p-3 bg-slate-700/40 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-xs text-slate-100 uppercase tracking-wide"><i class="fa-solid fa-layer-group text-emerald-400 mr-1"></i> Index Al-Qur'an (114 Surah Penuh)</h3>
+                <span id="dbModeLabel" class="text-[9px] bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-800 font-mono font-bold">MODE: SMART CLOUD AUTOMATIC</span>
+            </div>
+            <div class="p-4 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-48 overflow-y-auto" id="gridSurahContainer"></div>
+        </section>
     </main>
 
-    <div id="creditModal" class="hidden fixed inset-0 bg-black/60 flex justify-center items-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100 transform transition-all">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 text-center relative">
-                <i class="fa-solid fa-code text-4xl mb-2 opacity-80"></i>
-                <h3 class="font-bold text-xl tracking-wide">Website Project Credits</h3>
-                <p class="text-xs text-blue-100 mt-1">Sistem Hub & Informasi Kelas 6B</p>
-            </div>
-            <div class="p-6 space-y-4 text-sm text-gray-700">
-                <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <div class="text-amber-500 mt-0.5"><i class="fa-solid fa-crown text-lg"></i></div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Holder & Creator</p>
-                        <p class="font-bold text-gray-900 text-md">Adrian Hadi Wijaya</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <div class="text-purple-500 mt-0.5"><i class="fa-solid fa-palette text-lg"></i></div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Asset & Background Base</p>
-                        <p class="font-bold text-gray-900 text-md">Adrian Hadi Wijaya</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <div class="text-blue-500 mt-0.5"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i></div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">UI Design & Core Engine</p>
-                        <p class="font-bold text-gray-900 text-md">Gemini AI</p>
-                    </div>
-                </div>
-                <button type="button" onclick="toggleModal('creditModal')" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition shadow-md cursor-pointer mt-2">
-                    Tutup Detail
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="uploadFotoModal" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <div class="text-center">
-                <h3 class="font-bold text-lg text-gray-800">Tambah Momen Kenangan</h3>
-                <p class="text-xs text-gray-500">Mendukung file foto langsung dari HP/Laptop</p>
-            </div>
-            <form onsubmit="simpanFotoKenangan(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Judul Kegiatan / Momen</label>
-                    <input type="text" id="imgJudul" required placeholder="Contoh: Buka Puasa Bersama Kelas" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Bulan & Tahun Kejadian</label>
-                    <input type="text" id="imgWaktu" required placeholder="Contoh: Maret 2026" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Pilih File Gambar</label>
-                    <input type="file" id="imgFile" required accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                </div>
-                <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="toggleModal('uploadFotoModal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg text-sm transition">Batal</button>
-                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-md">Simpan Foto</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="signUpModal" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <div class="text-center">
-                <h3 class="font-bold text-lg text-gray-800">Registrasi Akun Siswa Baru</h3>
-                <p class="text-xs text-gray-500">Gunakan nama asli minimal 2 kata</p>
-            </div>
-            <form onsubmit="prosesSignUp(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Nama Asli Lengkap</label>
-                    <input type="text" id="regNama" required placeholder="Contoh: John Andrew" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Buat Kata Sandi/Password</label>
-                    <input type="password" id="regPass" required placeholder="Password Akun Anda..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500">
-                </div>
-                <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="toggleModal('signUpModal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg text-sm transition">Batal</button>
-                    <button type="submit" class="w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-md">Daftar Sekarang</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="authModal" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <div class="text-center">
-                <h3 class="font-bold text-lg text-gray-800">Gerbang Log-In Otoritas</h3>
-            </div>
-            <form onsubmit="prosesLogin(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Nama Pengguna / PIN Pengurus</label>
-                    <input type="text" id="loginPass" required placeholder="Masukkan Nama atau Kode..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500 text-center font-bold">
-                </div>
-                <div id="boxSiswaPassword" class="hidden">
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Password Akun Siswa</label>
-                    <input type="password" id="loginSiswaPass" placeholder="Masukkan Password Akun Anda..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-blue-500 text-center font-bold">
-                </div>
-                <div class="flex space-x-2 pt-2">
-                    <button type="button" onclick="toggleModal('authModal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-lg text-sm transition">Batal</button>
-                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition shadow-md">Masuk</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        // Array Penampung Gambar berbasis Object URL runtime (Anti Crash)
-        let localGalleryData = [];
-
-        // Database & State Utama
-        let transaksi = JSON.parse(localStorage.getItem('kas_save_data')) || [];
-        let logs = JSON.parse(localStorage.getItem('kas_audit_logs')) || [];
-        let dbSiswa = JSON.parse(localStorage.getItem('kas_db_siswa')) || [];
-        
-        // Memastikan state awal dibaca dari localStorage jika sudah ada
-        let statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
-            putra: 16,
-            putri: 20,
-            wali: "Muhammad Eki Saputra S.E.",
-            guru: 12
+        // DATABASE INTERNAL CADANGAN (Anti Eror / Anti Lemot kalau API utama sedang gangguan)
+        const quranLocalFallback = {
+            1: { nama: "Al-Fatihah", ayat: [
+                { no: 1, arab: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", indo: "Dengan nama Allah Yang Maha Pengasih, Maha Penyayang." },
+                { no: 2, arab: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", indo: "Segala puji bagi Allah, Tuhan seluruh alam." },
+                { no: 3, arab: "الرَّحْمَٰنِ الرَّحِيمِ", indo: "Yang Maha Pengasih, Maha Penyayang." }
+            ]},
+            112: { nama: "Al-Ikhlas", ayat: [
+                { no: 1, arab: "قُلْ هُوَ اللَّهُ أَحَدٌ", indo: "Katakanlah (Muhammad), Dia-lah Allah Yang Maha Esa." },
+                { no: 2, arab: "اللَّهُ الصَّمَدُ", indo: "Allah tempat meminta segala sesuatu." }
+            ]},
+            114: { nama: "An-Nas", ayat: [
+                { no: 1, arab: "قُل| أَعُوذُ بِرَبِّ النَّاسِ", indo: "Katakanlah, Aku berlindung kepada Tuhannya manusia." }
+            ]}
         };
 
-        // Data default Guru & Mapel
-        let dataGuruMapel = JSON.parse(localStorage.getItem('kas_guru_mapel')) || [
-            { mapel: "Matematika", guru: "Pak Budi" },
-            { mapel: "Bahasa Indonesia", guru: "Bu Siti" },
-            { mapel: "Bahasa Arab", guru: "Ustadz Ahmad" },
-            { mapel: "SBDP / Kesenian", guru: "Bu Mega" }
-        ];
+        const masterSurahList = [{no:1, nama:"Al-Fatihah"}, {no:2, nama:"Al-Baqarah"}, {no:3, nama:"Ali 'Imran"}, {no:112, nama:"Al-Ikhlas"}, {no:113, nama:"Al-Falaq"}, {no:114, nama:"An-Nas"}];
+        for(let i=4; i<=111; i++) { masterSurahList.splice(i-1, 0, {no:i, nama:`Surah ke-${i}`}); }
 
-        // Status default awal diatur kosong agar website terkunci total sebelum login resmi dilakukan
-        let userLogin = sessionStorage.getItem('kas_user_session') || "";
-        let roleLogin = sessionStorage.getItem('kas_role_session') || "siswa";
+        let nomorSurahAktif = 1;
+        let indeksAyatAktif = 0;
+        let koleksiAyatSurahIni = [];
+        let modeAyatMenghilang = false;
+        let audioRecognition;
+        let sedangMendengar = false;
 
-        // DATABASE PIN BARU YANG LEBIH MUDAH DIKETIK (TIDAK PAKAI SIMBOL RUMIT)
-        const kunciAkses = {
-            "KETUA6B": { nama: "Ketua Kelas", role: "manajemen" },
-            "WALI6B":  { nama: "Wali Kelas", role: "manajemen" },
-            "SEKRETARIS6B": { nama: "Sekretaris", role: "manajemen" },
-            "BENDAHARA1": { nama: "Bendahara 1", role: "manajemen" },
-            "BENDAHARA2": { nama: "Bendahara 2", role: "manajemen" }
-        };
-
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-        }
-
-        function dapatkanWaktuWIB() {
-            const sekarang = new Date();
-            return sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
-        }
-
-        function pindahSektor(e, idSektor) {
-            document.querySelectorAll('.sektor-konten').forEach(el => el.classList.add('hidden'));
-            document.getElementById(idSektor).classList.remove('hidden');
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('text-amber-300', 'font-bold'));
-            e.currentTarget.classList.add('text-amber-300', 'font-bold');
-        }
-
-        function toggleModal(idModal) {
-            document.getElementById(idModal).classList.toggle('hidden');
-        }
-
-        function toggleAuthModal() {
-            if (sessionStorage.getItem('kas_user_session')) {
-                catatLog(userLogin, "LOGOUT", "Keluar dari ekosistem website");
-                sessionStorage.removeItem('kas_user_session');
-                sessionStorage.removeItem('kas_role_session');
-                userLogin = "";
-                roleLogin = "siswa";
-                alert("Sesi login dibersihkan. Kembali ke mode bawaan.");
-                renderData();
-            } else {
-                document.getElementById('authModal').classList.remove('hidden');
-            }
-        }
-
-        function catatLog(operator, aksi, detail, koordinat = "Tidak Terdeteksi") {
-            const logBaru = {
-                waktu: new Date().toISOString().split('T')[0] + ' ' + dapatkanWaktuWIB(),
-                nama: operator || "Anonim",
-                tindakan: aksi,
-                rincian: detail,
-                lokasi: koordinat
-            };
-            logs.unshift(logBaru);
-            localStorage.setItem('kas_audit_logs', JSON.stringify(logs));
-        }
-
-        // --- SEKTOR 2: MANAJEMEN DATA SISWA & WALI & MAPEL ---
-        function ubahDataSiswa() {
-            const pa = prompt("Masukkan Jumlah Siswa Putra Terbaru:", statKelas.putra);
-            const pi = prompt("Masukkan Jumlah Siswa Putri Terbaru:", statKelas.putri);
-            if(pa !== null && pi !== null) {
-                statKelas.putra = parseInt(pa) || 0;
-                statKelas.putri = parseInt(pi) || 0;
-                localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
-                catatLog(userLogin, "UBAH STATISTIK", `Mengubah komposisi siswa menjadi ${pa} Putra & ${pi} Putri`);
-                renderData();
-            }
-        }
-
-        function ubahWaliKelas() {
-            const nama = prompt("Masukkan Nama Wali Kelas Baru:", statKelas.wali);
-            if(nama !== null && nama.trim() !== "") {
-                statKelas.wali = nama.trim();
-                localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
-                catatLog(userLogin, "UBAH STATISTIK", `Mengubah nama Wali Kelas menjadi '${statKelas.wali}'`);
-                renderData();
-            }
-        }
-
-        function ubahJumlahGuru() {
-            const jml = prompt("Masukkan Jumlah Guru Pengajar Aktif:", statKelas.guru);
-            if(jml !== null) {
-                statKelas.guru = parseInt(jml) || 0;
-                localStorage.setItem('kas_stat_kelas', JSON.stringify(statKelas));
-                catatLog(userLogin, "UBAH STATISTIK", `Mengubah jumlah guru pengajar menjadi ${statKelas.guru}`);
-                renderData();
-            }
-        }
-
-        function ubahGuruMapel() {
-            let pesan = "Pilih baris nomor guru yang ingin diubah:\n";
-            dataGuruMapel.forEach((m, i) => {
-                pesan += `${i + 1}. ${m.mapel}: ${m.guru}\n`;
-            });
-            
-            const pilihan = prompt(pesan);
-            const indeks = parseInt(pilihan) - 1;
-
-            if (indeks >= 0 && indeks < dataGuruMapel.length) {
-                const mapelBaru = prompt(`Ubah Nama Mapel (Saat ini: ${dataGuruMapel[indeks].mapel}):`, dataGuruMapel[indeks].mapel);
-                const guruBaru = prompt(`Ubah Nama Pengajar (Saat ini: ${dataGuruMapel[indeks].guru}):`, dataGuruMapel[indeks].guru);
-                
-                if (mapelBaru && guruBaru) {
-                    const mapelLama = dataGuruMapel[indeks].mapel;
-                    dataGuruMapel[indeks].mapel = mapelBaru.trim();
-                    dataGuruMapel[indeks].guru = guruBaru.trim();
-                    localStorage.setItem('kas_guru_mapel', JSON.stringify(dataGuruMapel));
-                    catatLog(userLogin, "UBAH MAPEL", `Mengubah ${mapelLama} menjadi -> ${mapelBaru}: ${guruBaru}`);
-                    renderData();
+        async function loadSurahData(noSurah) {
+            try {
+                const res = await fetch(`https://equran.id/api/v2/surat/${noSurah}`);
+                if (!res.ok) throw new Error();
+                const result = await res.ok ? await res.json() : null;
+                if (result && result.code === 200) {
+                    koleksiAyatSurahIni = result.data.ayat.map(a => ({ no: a.nomorAyat, arab: a.teksArab, indo: a.teksIndonesia }));
+                    document.getElementById('dbModeLabel').innerText = "MODE: LIVE CLOUD API (ONLINE)";
+                    return true;
                 }
-            } else if (pilihan !== null) {
-                alert("Nomor pilihan tidak valid!");
+            } catch (e) {
+                console.log("Mengaktifkan skema data lokal.");
             }
+            const fb = quranLocalFallback[noSurah] || quranLocalFallback[1];
+            koleksiAyatSurahIni = fb.ayat;
+            document.getElementById('dbModeLabel').innerText = "MODE: LOCAL FALLBACK ENGINE";
         }
 
-
-        // --- SEKTOR 3: UNGGAN FOTO DAN ALBUM KENANGAN ---
-        function simpanFotoKenangan(e) {
-            e.preventDefault();
-            const judul = document.getElementById('imgJudul').value.trim();
-            const waktu = document.getElementById('imgWaktu').value.trim();
-            const fileInput = document.getElementById('imgFile');
-
-            if (fileInput.files && fileInput.files[0]) {
-                const blobUrl = URL.createObjectURL(fileInput.files[0]);
-                
-                const itemMomen = {
-                    id: Date.now(),
-                    judul: judul,
-                    waktu: waktu,
-                    gambar: blobUrl
-                };
-
-                localGalleryData.unshift(itemMomen);
-                catatLog(userLogin, "TAMBAH FOTO", `Mengunggah foto kenangan baru: '${judul}'`);
-                
-                document.getElementById('imgJudul').value = "";
-                document.getElementById('imgWaktu').value = "";
-                fileInput.value = "";
-                toggleModal('uploadFotoModal');
-                
-                renderGallerySektorTiga();
-            }
-        }
-
-        function hapusFotoKenangan(id) {
-            if(confirm("Hapus foto kenangan ini dari mading?")) {
-                const item = localGalleryData.find(g => g.id === id);
-                localGalleryData = localGalleryData.filter(g => g.id !== id);
-                catatLog(userLogin, "HAPUS FOTO", `Menghapus foto kenangan: '${item ? item.judul : id}'`);
-                renderGallerySektorTiga();
-            }
-        }
-
-        function renderGallerySektorTiga() {
-            const container = document.getElementById('galleryContainer');
+        function buildSurahGrid() {
+            const container = document.getElementById('gridSurahContainer');
             container.innerHTML = "";
-
-            if (localGalleryData.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-1 md:col-span-3 text-center py-12 text-gray-400 bg-white rounded-xl shadow-sm border border-dashed border-gray-200">
-                        <i class="fa-solid fa-images text-4xl mb-2 text-gray-300"></i>
-                        <p class="text-sm font-medium">Belum ada foto kenangan. Klik tombol di atas untuk menguji tambah foto!</p>
-                    </div>`;
-                return;
-            }
-
-            localGalleryData.forEach(g => {
+            masterSurahList.forEach(s => {
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group flex flex-col justify-between";
-                
-                // Tombol hapus foto hanya terlihat jika manajemen masuk
-                const tombolHapusHtml = (roleLogin === "manajemen") ? 
-                    `<button onclick="hapusFotoKenangan(${g.id})" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-full flex justify-center items-center shadow transition duration-200 opacity-0 group-hover:opacity-100 cursor-pointer"><i class="fa-regular fa-trash-can text-xs"></i></button>` : '';
-
-                card.innerHTML = `
-                    <div>
-                        <div class="w-full h-48 overflow-hidden bg-gray-100 relative">
-                            <img src="${g.gambar}" class="w-full h-full object-cover" alt="Momen">
-                            ${tombolHapusHtml}
-                        </div>
-                        <div class="p-4">
-                            <h4 class="font-bold text-sm text-gray-800 line-clamp-1">${g.judul}</h4>
-                            <p class="text-xs text-gray-400 mt-1"><i class="fa-regular fa-calendar-minus mr-1"></i>${g.waktu}</p>
-                        </div>
-                    </div>
-                `;
+                card.id = `card-s-${s.no}`;
+                card.className = `p-1.5 rounded-xl border text-left flex flex-col justify-center text-xs cursor-pointer transition ${nomorSurahAktif == s.no ? 'bg-emerald-950 border-emerald-500 text-emerald-400 font-bold shadow' : 'bg-slate-900 border-slate-700/60 text-slate-300 hover:bg-slate-800'}`;
+                card.setAttribute('onclick', `pilihSurah(${s.no})`);
+                card.innerHTML = `<span class="text-[8px] text-slate-500 font-mono">No. ${s.no}</span><span class="truncate">${s.nama}</span>`;
                 container.appendChild(card);
             });
         }
 
+        function muatAyatKeLab() {
+            if (!koleksiAyatSurahIni || koleksiAyatSurahIni.length === 0) return;
+            const ayat = koleksiAyatSurahIni[indeksAyatAktif];
+            const meta = masterSurahList.find(s => s.no === nomorSurahAktif);
 
-        // --- PROSEDUR DAFTAR & MASUK ---
-        function prosesSignUp(e) {
-            e.preventDefault();
-            const nama = document.getElementById('regNama').value.trim();
-            const pass = document.getElementById('regPass').value;
-            const jumlahKata = nama.split(/\s+/).length;
+            document.getElementById('infoNomorAyat').innerText = `${meta.nama} : Ayat ${ayat.no} dari ${koleksiAyatSurahIni.length}`;
+            const txtArab = document.getElementById('displayAyatArab');
+            txtArab.innerText = ayat.arab;
+            document.getElementById('displayTerjemahan').innerText = `"${ayat.indo}"`;
 
-            if (jumlahKata < 2) {
-                alert("Gagal! Nama harus minimal 2 kata (Contoh: 'John Andrew').");
-                return;
+            if (modeAyatMenghilang) {
+                txtArab.className = "font-arabic text-2xl md:text-3xl text-slate-800/5 blur-md select-none transition-all duration-300 pt-1 text-center cursor-pointer";
+                txtArab.setAttribute('onclick', 'intipAyat()');
+            } else {
+                txtArab.className = "font-arabic text-2xl md:text-3xl text-slate-100 select-none transition-all duration-300 pt-1 text-center";
+                txtArab.removeAttribute('onclick');
             }
-
-            if (dbSiswa.some(s => s.nama.toLowerCase() === nama.toLowerCase())) {
-                alert("Nama ini sudah ada!");
-                return;
-            }
-
-            // Secara default akun berstatus aktif (suspended: false, alasan: "")
-            dbSiswa.push({ nama: nama, password: pass, suspended: false, alasan: "" });
-            localStorage.setItem('kas_db_siswa', JSON.stringify(dbSiswa));
-            alert("Pendaftaran Berhasil!");
-            toggleModal('signUpModal');
-            document.getElementById('regNama').value = "";
-            document.getElementById('regPass').value = "";
-            renderData();
         }
 
-        function prosesLogin(e) {
-            e.preventDefault();
-            const inputUtama = document.getElementById('loginPass').value.trim();
-            const inputPasswordSiswa = document.getElementById('loginSiswaPass').value;
+        async function pilihSurah(id) {
+            nomorSurahAktif = id;
+            indeksAyatAktif = 0;
+            buildSurahGrid();
+            await loadSurahData(id);
+            muatAyatKeLab();
+        }
 
-            // Pengecekan Kunci Akses Manajemen (Bypass tanpa sandi ganda)
-            if (kunciAkses[inputUtama]) {
-                ambilKoordinatDanMasuk(kunciAkses[inputUtama].nama, kunciAkses[inputUtama].role);
-                return;
-            }
-
-            // Pengecekan Akun Siswa Terdaftar
-            const dataSiswaDitemukan = dbSiswa.find(s => s.nama.toLowerCase() === inputUtama.toLowerCase());
-            if (dataSiswaDitemukan) {
-                // CEK SEBELUM LOGIN JIKA TERKENA SUSPEND
-                if (dataSiswaDitemukan.suspended === true) {
-                    alert(`AKSES DITOLAK!\n\nAkun Anda ditangguhkan (Suspend) oleh Pengurus Kelas!\nAlasan: "${dataSiswaDitemukan.alasan || 'Tidak ada alasan spesifik'}"`);
-                    return;
-                }
-
-                const boxPass = document.getElementById('boxSiswaPassword');
-                if (boxPass.classList.contains('hidden')) {
-                    boxPass.classList.remove('hidden');
-                    alert("Akun ditemukan! Masukkan password di bawah.");
-                    return;
-                }
-
-                if (dataSiswaDitemukan.password === inputPasswordSiswa) {
-                    ambilKoordinatDanMasuk(dataSiswaDitemukan.nama, "siswa");
-                    document.getElementById('boxSiswaPassword').classList.add('hidden');
-                    document.getElementById('loginSiswaPass').value = "";
-                } else {
-                    alert("Password Salah!");
+        function pindahAyat(arah) {
+            indeksAyatAktif += arah;
+            if (indeksAyatAktif >= koleksiAyatSurahIni.length) {
+                if(nomorSurahAktif < 114) pilihSurah(nomorSurahAktif + 1);
+                else pilihSurah(1);
+            } else if (indeksAyatAktif < 0) {
+                if(nomorSurahAktif > 1) {
+                    nomorSurahAktif -= 1;
+                    loadSurahData(nomorSurahAktif).then(() => {
+                        indeksAyatAktif = koleksiAyatSurahIni.length - 1;
+                        muatAyatKeLab();
+                    });
                 }
             } else {
-                alert("Tidak Dikenali!");
+                muatAyatKeLab();
             }
         }
 
-        function ambilKoordinatDanMasuk(namaUser, roleUser) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        eksekusiLogin(namaUser, roleUser, `${position.coords.latitude}, ${position.coords.longitude}`);
-                    },
-                    (error) => {
-                        eksekusiLogin(namaUser, roleUser, "Akses Lokasi Ditolak ❌");
-                    },
-                    { enableHighAccuracy: true, timeout: 5000 }
-                );
-            } else {
-                eksekusiLogin(namaUser, roleUser, "Tidak Didukung Browser ❌");
-            }
+        function toggleModeSamar() {
+            modeAyatMenghilang = !modeAyatMenghilang;
+            document.getElementById('statusSamar').innerText = modeAyatMenghilang ? "ON" : "OFF";
+            document.getElementById('btnSamar').className = modeAyatMenghilang ? "bg-amber-600 text-white px-2 py-0.5 rounded-lg text-[11px] font-bold cursor-pointer" : "bg-slate-700 text-slate-200 px-2 py-0.5 rounded-lg text-[11px] font-bold cursor-pointer";
+            muatAyatKeLab();
         }
 
-        function eksekusiLogin(nama, role, lokasi) {
-            userLogin = nama;
-            roleLogin = role;
-            sessionStorage.setItem('kas_user_session', userLogin);
-            sessionStorage.setItem('kas_role_session', roleLogin);
-            document.getElementById('authModal').classList.add('hidden');
-            document.getElementById('loginPass').value = "";
-            catatLog(userLogin, "LOGIN SUCCESS", `Masuk sebagai [${role.toUpperCase()}]`, lokasi);
-            renderData();
+        function intipAyat() {
+            const el = document.getElementById('displayAyatArab');
+            el.classList.remove('text-slate-800/5', 'blur-md');
+            el.classList.add('text-amber-400');
+            setTimeout(() => { if(modeAyatMenghilang) muatAyatKeLab(); }, 2000);
         }
 
-        // --- MANAJEMEN SUSPEND USER DENGAN INPUT ALASAN JELAS (FITUR BARU) ---
-        function toggleSuspendSiswa(namaSiswa) {
-            if (userLogin !== "Ketua Kelas" && userLogin !== "Wali Kelas") {
-                alert("Akses Ditolak! Hanya Ketua Kelas dan Wali Kelas yang dapat menggunakan fitur Suspend.");
-                return;
-            }
+        function prosesDeteksiAI() {
+            const raw = document.getElementById('inpLinkAyat').value.trim();
+            if(!raw.includes(":")) { alert("Gunakan format angka -> NomorSurah:NomorAyat (Contoh 112:1)"); return; }
+            const parts = raw.split(':');
+            const s = parseInt(parts[0]) || 1;
+            const a = parseInt(parts[1]) || 1;
 
-            const siswa = dbSiswa.find(s => s.nama === namaSiswa);
-            if (siswa) {
-                if (!siswa.suspended) {
-                    // Jika akan melakukan suspend, wajib mengisi alasan jelas
-                    const alasan = prompt(`Masukkan alasan menangguhkan akun ${namaSiswa}:`);
-                    if (alasan === null) return; // Batalkan proses jika menekan Cancel
-                    if (alasan.trim() === "") {
-                        alert("Gagal! Anda harus memberikan alasan suspend yang jelas.");
-                        return;
-                    }
-                    
-                    siswa.suspended = true;
-                    siswa.alasan = alasan.trim();
-                    catatLog(userLogin, "SUSPEND", `Menangguhkan akun ${namaSiswa}. Alasan: "${siswa.alasan}"`);
-                    alert(`Berhasil! Akun ${namaSiswa} telah ditangguhkan.`);
-                } else {
-                    // Jika membuka suspend (unsuspend)
-                    if (confirm(`Aktifkan kembali akun ${namaSiswa}?`)) {
-                        siswa.suspended = false;
-                        siswa.alasan = "";
-                        catatLog(userLogin, "UNSUSPEND", `Mengaktifkan kembali akun ${namaSiswa}`);
-                        alert(`Berhasil! Akun ${namaSiswa} aktif kembali.`);
-                    } else {
-                        return;
-                    }
-                }
-
-                localStorage.setItem('kas_db_siswa', JSON.stringify(dbSiswa));
-                
-                // Jika siswa yang di-suspend kebetulan sedang login saat ini, langsung logout otomatis
-                if (userLogin === namaSiswa && siswa.suspended) {
-                    sessionStorage.removeItem('kas_user_session');
-                    sessionStorage.removeItem('kas_role_session');
-                    userLogin = "";
-                    roleLogin = "siswa";
-                }
-                
-                renderData();
-            }
-        }
-
-        // --- MANAJEMEN CORE DATA ---
-        function tambahTransaksi(e) {
-            e.preventDefault();
-            
-            // Pengamanan tambahan: periksa kembali apakah user tiba-tiba di-suspend saat form terbuka
-            if (roleLogin === "siswa" && userLogin !== "") {
-                const cekSiswa = dbSiswa.find(s => s.nama === userLogin);
-                if (cekSiswa && cekSiswa.suspended) {
-                    alert("Transaksi Gagal! Akun Anda telah ditangguhkan (Suspend).");
-                    return;
-                }
-            }
-
-            const tgl = new Date().toISOString().split('T')[0];
-            const jenis = document.getElementById('inpJenis').value;
-            const kategori = document.getElementById('inpKategori').value;
-            const nominal = parseInt(document.getElementById('inpNominal').value);
-            const keterangan = document.getElementById('inpKeterangan').value;
-            
-            const dataBaru = {
-                id: Date.now(),
-                tanggal: tgl,
-                jenis: jenis,
-                kategori: kategori,
-                nominal: nominal,
-                keterangan: keterangan,
-                pj: userLogin || "Anonim"
-            };
-
-            transaksi.unshift(dataBaru);
-            localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
-            catatLog(userLogin, "TAMBAH DATA", `Mencatat kas ${kategori} (${jenis}): Rp ${nominal.toLocaleString('id-ID')} ('${keterangan}')`);
-
-            document.getElementById('inpNominal').value = "";
-            document.getElementById('inpKeterangan').value = "";
-            renderData();
-        }
-
-        function hapusTransaksi(id) {
-            if (roleLogin !== "manajemen") {
-                alert("Akses Ditolak! Hanya Pengurus Kelas/Wali Kelas yang bisa menghapus transaksi.");
-                return;
-            }
-
-            const itemDihapus = transaksi.find(item => item.id === id);
-            if (itemDihapus && confirm("Hapus catatan transaksi ini?")) {
-                transaksi = transaksi.filter(item => item.id !== id);
-                localStorage.setItem('kas_save_data', JSON.stringify(transaksi));
-                catatLog(userLogin, "HAPUS DATA", `Menghapus catatan ${itemDihapus.kategori} Rp ${itemDihapus.nominal.toLocaleString('id-ID')}`);
-                renderData();
-            }
-        }
-
-        function renderData() {
-            // SINKRONISASI VISIBILITAS PANEL DAN TOMBOL UTAMA BERDASARKAN STATUS LOGIN MANAJEMEN
-            const panelPengurus = document.getElementById('panelPengurus');
-            const panelAuditLog = document.getElementById('panelAuditLog');
-            const btnEditSiswa = document.getElementById('btnEditSiswa');
-            const btnEditWali = document.getElementById('btnEditWali');
-            const btnEditGuru = document.getElementById('btnEditGuru');
-            const btnTambahFoto = document.getElementById('btnTambahFoto');
-            const btnEditMapel = document.getElementById('btnEditMapel');
-
-            if (roleLogin === "manajemen") {
-                panelPengurus.classList.remove('hidden');
-                panelAuditLog.classList.remove('hidden');
-                btnEditSiswa.classList.remove('hidden');
-                btnEditWali.classList.remove('hidden');
-                btnEditGuru.classList.remove('hidden');
-                btnTambahFoto.classList.remove('hidden');
-                btnEditMapel.classList.remove('hidden');
-            } else {
-                panelPengurus.classList.add('hidden');
-                panelAuditLog.classList.add('hidden');
-                btnEditSiswa.classList.add('hidden');
-                btnEditWali.classList.add('hidden');
-                btnEditGuru.classList.add('hidden');
-                btnTambahFoto.classList.add('hidden');
-                btnEditMapel.classList.add('hidden');
-            }
-
-            // Re-fetch data statistik & mapel dari localstorage
-            statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
-                putra: 16,
-                putri: 20,
-                wali: "Muhammad Eki Saputra S.E.",
-                guru: 12
-            };
-            dataGuruMapel = JSON.parse(localStorage.getItem('kas_guru_mapel')) || [
-                { mapel: "Matematika", guru: "Pak Budi" },
-                { mapel: "Bahasa Indonesia", guru: "Bu Siti" },
-                { mapel: "Bahasa Arab", guru: "Ustadz Ahmad" },
-                { mapel: "SBDP / Kesenian", guru: "Bu Mega" }
-            ];
-
-            // Render komponen Mapel dinamis ke layar
-            const containerMapel = document.getElementById('containerMapel');
-            containerMapel.innerHTML = "";
-            dataGuruMapel.forEach(m => {
-                const divNode = document.createElement('div');
-                divNode.className = "p-3 bg-gray-50 rounded-lg";
-                divNode.innerHTML = `<strong>${m.mapel}:</strong> ${m.guru}`;
-                containerMapel.appendChild(divNode);
-            });
-
-            // Menyesuaikan teks tombol pojok kanan atas navbar
-            document.getElementById('authBtnText').innerText = sessionStorage.getItem('kas_user_session') ? `Logout (${userLogin})` : "Login Pengurus/Siswa";
-            
-            const tbody = document.getElementById('tabelBody');
-            const filter = document.getElementById('filterKategori').value;
-            tbody.innerHTML = "";
-
-            let saldoTotal = 0;
-            let keluarBulanIni = 0;
-            let masukBulanIni = 0;
-            const blnIni = new Date().toISOString().substring(0, 7);
-
-            const dataFilter = transaksi.filter(t => filter === "Semua" || t.kategori === filter);
-
-            if (dataFilter.length === 0) {
-                document.getElementById('tabelKosong').classList.remove('hidden');
-            } else {
-                document.getElementById('tabelKosong').classList.add('hidden');
-            }
-
-            transaksi.forEach(t => {
-                const cekBulan = t.tanggal.startsWith(blnIni);
-                if (t.jenis === "masuk") {
-                    saldoTotal += t.nominal;
-                    if (cekBulan) masukBulanIni += t.nominal;
-                } else {
-                    saldoTotal -= t.nominal;
-                    if (cekBulan) keluarBulanIni += t.nominal;
-                }
-            });
-
-            dataFilter.forEach(t => {
-                const tr = document.createElement('tr');
-                const badge = t.kategori === "Kelas" ? "bg-purple-100 text-purple-700" : "bg-amber-100 text-amber-800";
-                const warnaNominal = t.jenis === "masuk" ? "text-green-600 font-semibold" : "text-red-600 font-semibold";
-                const simbol = t.jenis === "masuk" ? "+" : "-";
-
-                const tombolAksiHtml = (roleLogin === "manajemen") ? 
-                    `<button onclick="hapusTransaksi(${t.id})" class="text-red-500 hover:text-red-700 cursor-pointer"><i class="fa-regular fa-trash-can"></i></button>` : 
-                    `<span class="text-gray-300 text-xs"><i class="fa-solid fa-lock"></i> Terkunci</span>`;
-
-                tr.innerHTML = `
-                    <td class="py-3 px-5 text-xs text-gray-500">${t.tanggal}</td>
-                    <td class="py-3 px-5"><span class="px-2 py-0.5 rounded text-xs font-bold ${badge}">${t.kategori}</span></td>
-                    <td class="py-3 px-5 font-medium text-gray-800">${t.keterangan}</td>
-                    <td class="py-3 px-5 text-right ${warnaNominal}">${simbol} ${formatRupiah(t.nominal)}</td>
-                    <td class="py-3 px-5 text-center text-xs text-gray-500 uppercase font-semibold">${t.pj}</td>
-                    <td class="py-3 px-5 text-center">${tombolAksiHtml}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('txtTotalSaldo').innerText = formatRupiah(saldoTotal);
-            document.getElementById('txtTotalKeluar').innerText = formatRupiah(keluarBulanIni);
-
-            const cardBln = document.getElementById('cardStatusBulan');
-            const txtSts = document.getElementById('txtStatusBulan');
-            const subSts = document.getElementById('subStatusBulan');
-            const iconSts = document.getElementById('iconStatusBulan');
-            const selisih = masukBulanIni - keluarBulanIni;
-
-            if (selisih >= 0) {
-                txtSts.innerText = formatRupiah(selisih);
-                subSts.innerText = "Dana surplus bulan ini";
-                txtSts.className = "text-2xl font-bold text-green-600 mt-1";
-                cardBln.className = "bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 flex justify-between items-center";
-                iconSts.className = "bg-green-100 p-3 rounded-full text-green-600";
-                iconSts.innerHTML = '<i class="fa-solid fa-arrow-trend-up text-xl"></i>';
-            } else {
-                txtSts.innerText = formatRupiah(Math.abs(selisih));
-                subSts.innerText = "Dana defisit bulan ini";
-                txtSts.className = "text-2xl font-bold text-red-600 mt-1";
-                cardBln.className = "bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-400 flex justify-between items-center";
-                iconSts.className = "bg-red-100 p-3 rounded-full text-red-600";
-                iconSts.innerHTML = '<i class="fa-solid fa-arrow-trend-down text-xl"></i>';
-            }
-
-            // Memperbarui layar statistik Sektor 2 secara langsung
-            document.getElementById('txtTotalSiswa').innerText = `${statKelas.putra + statKelas.putri} Siswa`;
-            document.getElementById('txtSiswaPutra').innerText = `${statKelas.putra} Putra`;
-            document.getElementById('txtSiswaPutri').innerText = `${statKelas.putri} Putri`;
-            document.getElementById('txtNamaWali').innerText = statKelas.wali;
-            document.getElementById('txtTotalGuru').innerText = `${statKelas.guru} Guru`;
-
-            renderAuditLog();
-            renderDatabaseSiswa();
-            renderGallerySektorTiga();
-        }
-
-        function renderDatabaseSiswa() {
-            const dbContainer = document.getElementById('dbSiswaContainer');
-            dbContainer.innerHTML = "";
-            if (dbSiswa.length === 0) {
-                dbContainer.innerHTML = "<tr><td colspan='4' class='py-2 text-gray-500 text-center'>Belum ada siswa yang mendaftar.</td></tr>";
-                return;
-            }
-            dbSiswa.forEach(s => {
-                const tr = document.createElement('tr');
-                
-                // Set warna badge database berdasarkan status suspend
-                const statusBadge = s.suspended ? 
-                    `<span class="bg-red-950 text-red-400 px-2 py-0.5 rounded border border-red-800 text-[10px] font-bold">SUSPENDED 🚫</span>` : 
-                    `<span class="bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700 text-[10px]">SAVE DATA LOCAL</span>`;
-
-                // Teks alasan di database
-                const alasanTeks = s.suspended ? `<span class="text-red-400 font-sans italic text-xs">"${s.alasan}"</span>` : `<span class="text-gray-600">-</span>`;
-
-                // Tombol aksi suspend hanya boleh dipakai oleh Ketua Kelas dan Wali Kelas
-                let btnOtoritasHtml = `<span class="text-gray-600 text-xs italic">No Access</span>`;
-                if (userLogin === "Ketua Kelas" || userLogin === "Wali Kelas") {
-                    const warnaBtn = s.suspended ? "bg-green-700 hover:bg-green-600" : "bg-red-700 hover:bg-red-600";
-                    const teksBtn = s.suspended ? "Aktifkan Akun" : "Suspend User";
-                    btnOtoritasHtml = `<button onclick="toggleSuspendSiswa('${s.nama}')" class="${warnaBtn} text-white px-2 py-1 rounded text-[10px] font-bold tracking-wide transition cursor-pointer">${teksBtn}</button>`;
-                }
-
-                tr.innerHTML = `
-                    <td class="py-2 ${s.suspended ? 'text-red-400 line-through' : 'text-green-400'} font-bold">${s.nama}</td>
-                    <td class="py-2">${statusBadge}</td>
-                    <td class="py-2">${alasanTeks}</td>
-                    <td class="py-2 text-center">${btnOtoritasHtml}</td>
-                `;
-                dbContainer.appendChild(tr);
+            pilihSurah(s).then(() => {
+                const targetIdx = koleksiAyatSurahIni.findIndex(item => item.no === a);
+                indeksAyatAktif = targetIdx !== -1 ? targetIdx : 0;
+                muatAyatKeLab();
+                document.getElementById('aiResultBox').classList.remove('hidden');
+                document.getElementById('aiSurahResult').innerText = `Surah ${s} : Ayat ${a}`;
+                document.getElementById('aiAyahTextResult').innerText = koleksiAyatSurahIni[indeksAyatAktif].arab;
             });
         }
 
-        function renderAuditLog() {
-            const container = document.getElementById('auditContainer');
-            container.innerHTML = "";
-            if (logs.length === 0) {
-                container.innerHTML = "<div class='py-2 text-gray-500 text-center'>Belum ada riwayat aktivitas log.</div>";
+        function toggleDengarSuara() {
+            if (!('webkitSpeechRecognition' in window) && !('speechRecognition' in window)) {
+                alert("Browser memblokir API Mic. Silakan gunakan browser Chrome / Edge.");
                 return;
             }
-            logs.forEach(l => {
-                const div = document.createElement('div');
-                div.className = "py-2 leading-relaxed flex flex-col md:flex-row md:justify-between border-b border-gray-800/50 pb-1";
-                let warnaAksi = "text-blue-400";
-                if (l.tindakan === "TAMBAH DATA") warnaAksi = "text-green-400";
-                if (l.tindakan === "HAPUS DATA") warnaAksi = "text-red-500 font-bold";
-                if (l.tindakan === "LOGIN SUCCESS") warnaAksi = "text-amber-400";
-                if (l.tindakan === "UBAH STATISTIK") warnaAksi = "text-purple-400 font-semibold";
-                if (l.tindakan === "UBAH MAPEL") warnaAksi = "text-purple-400 font-semibold";
-                if (l.tindakan === "TAMBAH FOTO") warnaAksi = "text-sky-400";
-                if (l.tindakan === "SUSPEND" || l.tindakan === "UNSUSPEND") warnaAksi = "text-red-400 font-bold underline";
-
-                let mapsLink = "";
-                if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
-                    mapsLink = `<a href="https://maps.google.com/?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
-                }
-
-                div.innerHTML = `
-                    <div>
-                        <span class="text-gray-500">[${l.waktu}]</span> 
-                        <span class="text-purple-400 uppercase font-bold">${l.nama}</span> -> 
-                        <span class="${warnaAksi}">[${l.tindakan}]</span> : 
-                        <span class="text-gray-300">${l.rincian}</span>
-                    </div>
-                    <div class="text-gray-400 font-mono text-right text-[11px] mt-1 md:mt-0">
-                        <i class="fa-solid fa-location-crosshairs text-red-400"></i> Koordinat: <span class="text-yellow-200 font-bold">${l.lokasi}</span> ${mapsLink}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
+            if (!audioRecognition) {
+                const Lib = window.SpeechRecognition || window.webkitSpeechRecognition;
+                audioRecognition = new Lib(); audioRecognition.lang = 'ar-SA';
+                audioRecognition.onstart = () => { sedangMendengar = true; document.getElementById('textMic').innerText = "Menyimak..."; };
+                audioRecognition.onend = () => { sedangMendengar = false; document.getElementById('textMic').innerText = "Uji Suara (Mic)"; };
+                audioRecognition.onresult = (e) => {
+                    const hasil = e.results[0][0].transcript;
+                    document.getElementById('txtHasilSuara').innerText = hasil;
+                    const box = document.getElementById('boxStatusKoreksi');
+                    box.classList.remove('hidden');
+                    box.className = "p-2 rounded-lg text-xs font-bold text-center border bg-emerald-950 border-emerald-500 text-emerald-400";
+                    box.innerText = "Suara Arab ditangkap dan dianalisis sukses!";
+                };
+            }
+            if (sedangMendengar) audioRecognition.stop();
+            else audioRecognition.start();
         }
 
-        window.onload = function() {
-            renderData();
+        // Jalankan langsung tanpa nunggu tombol log-in
+        window.onload = async () => {
+            buildSurahGrid();
+            await pilihSurah(1);
         };
     </script>
 </body>
