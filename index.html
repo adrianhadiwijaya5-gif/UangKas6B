@@ -206,6 +206,8 @@
                             <tr class="text-gray-500 uppercase">
                                 <th class="pb-2">Nama Lengkap Akun</th>
                                 <th class="pb-2">Status Database</th>
+                                <th class="pb-2">Alasan Suspend (Jika ada)</th>
+                                <th class="pb-2 text-center">Aksi Otoritas</th>
                             </tr>
                         </thead>
                         <tbody id="dbSiswaContainer" class="divide-y divide-gray-900">
@@ -339,7 +341,7 @@
         let logs = JSON.parse(localStorage.getItem('kas_audit_logs')) || [];
         let dbSiswa = JSON.parse(localStorage.getItem('kas_db_siswa')) || [];
         
-        // Memastikan state awal dibaca dari localStorage jika sudah ada (Nama Wali diperbarui ke Eki Saputra)
+        // Memastikan state awal dibaca dari localStorage jika sudah ada
         let statKelas = JSON.parse(localStorage.getItem('kas_stat_kelas')) || {
             putra: 16,
             putri: 20,
@@ -567,7 +569,8 @@
                 return;
             }
 
-            dbSiswa.push({ nama: nama, password: pass });
+            // Secara default akun berstatus aktif (suspended: false, alasan: "")
+            dbSiswa.push({ nama: nama, password: pass, suspended: false, alasan: "" });
             localStorage.setItem('kas_db_siswa', JSON.stringify(dbSiswa));
             alert("Pendaftaran Berhasil!");
             toggleModal('signUpModal');
@@ -590,6 +593,12 @@
             // Pengecekan Akun Siswa Terdaftar
             const dataSiswaDitemukan = dbSiswa.find(s => s.nama.toLowerCase() === inputUtama.toLowerCase());
             if (dataSiswaDitemukan) {
+                // CEK SEBELUM LOGIN JIKA TERKENA SUSPEND
+                if (dataSiswaDitemukan.suspended === true) {
+                    alert(`AKSES DITOLAK!\n\nAkun Anda ditangguhkan (Suspend) oleh Pengurus Kelas!\nAlasan: "${dataSiswaDitemukan.alasan || 'Tidak ada alasan spesifik'}"`);
+                    return;
+                }
+
                 const boxPass = document.getElementById('boxSiswaPassword');
                 if (boxPass.classList.contains('hidden')) {
                     boxPass.classList.remove('hidden');
@@ -636,10 +645,67 @@
             renderData();
         }
 
+        // --- MANAJEMEN SUSPEND USER DENGAN INPUT ALASAN JELAS (FITUR BARU) ---
+        function toggleSuspendSiswa(namaSiswa) {
+            if (userLogin !== "Ketua Kelas" && userLogin !== "Wali Kelas") {
+                alert("Akses Ditolak! Hanya Ketua Kelas dan Wali Kelas yang dapat menggunakan fitur Suspend.");
+                return;
+            }
+
+            const siswa = dbSiswa.find(s => s.nama === namaSiswa);
+            if (siswa) {
+                if (!siswa.suspended) {
+                    // Jika akan melakukan suspend, wajib mengisi alasan jelas
+                    const alasan = prompt(`Masukkan alasan menangguhkan akun ${namaSiswa}:`);
+                    if (alasan === null) return; // Batalkan proses jika menekan Cancel
+                    if (alasan.trim() === "") {
+                        alert("Gagal! Anda harus memberikan alasan suspend yang jelas.");
+                        return;
+                    }
+                    
+                    siswa.suspended = true;
+                    siswa.alasan = alasan.trim();
+                    catatLog(userLogin, "SUSPEND", `Menangguhkan akun ${namaSiswa}. Alasan: "${siswa.alasan}"`);
+                    alert(`Berhasil! Akun ${namaSiswa} telah ditangguhkan.`);
+                } else {
+                    // Jika membuka suspend (unsuspend)
+                    if (confirm(`Aktifkan kembali akun ${namaSiswa}?`)) {
+                        siswa.suspended = false;
+                        siswa.alasan = "";
+                        catatLog(userLogin, "UNSUSPEND", `Mengaktifkan kembali akun ${namaSiswa}`);
+                        alert(`Berhasil! Akun ${namaSiswa} aktif kembali.`);
+                    } else {
+                        return;
+                    }
+                }
+
+                localStorage.setItem('kas_db_siswa', JSON.stringify(dbSiswa));
+                
+                // Jika siswa yang di-suspend kebetulan sedang login saat ini, langsung logout otomatis
+                if (userLogin === namaSiswa && siswa.suspended) {
+                    sessionStorage.removeItem('kas_user_session');
+                    sessionStorage.removeItem('kas_role_session');
+                    userLogin = "";
+                    roleLogin = "siswa";
+                }
+                
+                renderData();
+            }
+        }
 
         // --- MANAJEMEN CORE DATA ---
         function tambahTransaksi(e) {
             e.preventDefault();
+            
+            // Pengamanan tambahan: periksa kembali apakah user tiba-tiba di-suspend saat form terbuka
+            if (roleLogin === "siswa" && userLogin !== "") {
+                const cekSiswa = dbSiswa.find(s => s.nama === userLogin);
+                if (cekSiswa && cekSiswa.suspended) {
+                    alert("Transaksi Gagal! Akun Anda telah ditangguhkan (Suspend).");
+                    return;
+                }
+            }
+
             const tgl = new Date().toISOString().split('T')[0];
             const jenis = document.getElementById('inpJenis').value;
             const kategori = document.getElementById('inpKategori').value;
@@ -825,14 +891,33 @@
             const dbContainer = document.getElementById('dbSiswaContainer');
             dbContainer.innerHTML = "";
             if (dbSiswa.length === 0) {
-                dbContainer.innerHTML = "<tr><td colspan='2' class='py-2 text-gray-500 text-center'>Belum ada siswa yang mendaftar.</td></tr>";
+                dbContainer.innerHTML = "<tr><td colspan='4' class='py-2 text-gray-500 text-center'>Belum ada siswa yang mendaftar.</td></tr>";
                 return;
             }
             dbSiswa.forEach(s => {
                 const tr = document.createElement('tr');
+                
+                // Set warna badge database berdasarkan status suspend
+                const statusBadge = s.suspended ? 
+                    `<span class="bg-red-950 text-red-400 px-2 py-0.5 rounded border border-red-800 text-[10px] font-bold">SUSPENDED 🚫</span>` : 
+                    `<span class="bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700 text-[10px]">SAVE DATA LOCAL</span>`;
+
+                // Teks alasan di database
+                const alasanTeks = s.suspended ? `<span class="text-red-400 font-sans italic text-xs">"${s.alasan}"</span>` : `<span class="text-gray-600">-</span>`;
+
+                // Tombol aksi suspend hanya boleh dipakai oleh Ketua Kelas dan Wali Kelas
+                let btnOtoritasHtml = `<span class="text-gray-600 text-xs italic">No Access</span>`;
+                if (userLogin === "Ketua Kelas" || userLogin === "Wali Kelas") {
+                    const warnaBtn = s.suspended ? "bg-green-700 hover:bg-green-600" : "bg-red-700 hover:bg-red-600";
+                    const teksBtn = s.suspended ? "Aktifkan Akun" : "Suspend User";
+                    btnOtoritasHtml = `<button onclick="toggleSuspendSiswa('${s.nama}')" class="${warnaBtn} text-white px-2 py-1 rounded text-[10px] font-bold tracking-wide transition cursor-pointer">${teksBtn}</button>`;
+                }
+
                 tr.innerHTML = `
-                    <td class="py-2 text-green-400 font-bold">${s.nama}</td>
-                    <td class="py-2 text-gray-400"><span class="bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700 text-[10px]">SAVE DATA LOCAL</span></td>
+                    <td class="py-2 ${s.suspended ? 'text-red-400 line-through' : 'text-green-400'} font-bold">${s.nama}</td>
+                    <td class="py-2">${statusBadge}</td>
+                    <td class="py-2">${alasanTeks}</td>
+                    <td class="py-2 text-center">${btnOtoritasHtml}</td>
                 `;
                 dbContainer.appendChild(tr);
             });
@@ -855,10 +940,11 @@
                 if (l.tindakan === "UBAH STATISTIK") warnaAksi = "text-purple-400 font-semibold";
                 if (l.tindakan === "UBAH MAPEL") warnaAksi = "text-purple-400 font-semibold";
                 if (l.tindakan === "TAMBAH FOTO") warnaAksi = "text-sky-400";
+                if (l.tindakan === "SUSPEND" || l.tindakan === "UNSUSPEND") warnaAksi = "text-red-400 font-bold underline";
 
                 let mapsLink = "";
                 if (l.lokasi && !l.lokasi.includes("Ditolak") && !l.lokasi.includes("Tidak") && l.lokasi !== "Tidak Terdeteksi") {
-                    mapsLink = `<a href="https://www.google.com/maps?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
+                    mapsLink = `<a href="https://maps.google.com/?q=${l.lokasi}" target="_blank" class="text-sky-400 underline hover:text-sky-300 ml-1 font-bold"><i class="fa-solid fa-map-location-dot"></i> Buka Peta</a>`;
                 }
 
                 div.innerHTML = `
